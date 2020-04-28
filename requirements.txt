@@ -1,0 +1,7 @@
+pyyaml
+numpy
+tensorflow==1.13.1
+pyhocon
+matplotlib
+Pillow
+scipy
