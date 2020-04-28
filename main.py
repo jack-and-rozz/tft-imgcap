@@ -5,10 +5,10 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+from dataset import read_data
 from tensorflow.keras import datasets, layers, models
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 def define_model(input_shape, output_size, dropout_rate=0.1):
@@ -31,22 +31,13 @@ def define_model(input_shape, output_size, dropout_rate=0.1):
     return model
     
 
-def read_data(data_dir, classes, batch_size, img_height, img_width, shuffle=False):
-    image_generator = ImageDataGenerator(rescale=1./255) 
-    data_gen = image_generator.flow_from_directory(
-        batch_size=batch_size,
-        directory=data_dir,
-        shuffle=shuffle,
-        target_size=(img_height, img_width),
-        classes=classes,
-        class_mode='categorical')
-    return data_gen
+# (todo): 無限ループするカスタムジェネレータを作ってlabelimgでアノテーションしたマルチラベルに対応
+
 
 def plotImages(images, labels=None, save_as=None):
     fig, axes = plt.subplots(1, len(images))
     axes = axes.flatten()
     for i, (img, ax) in enumerate(zip(images, axes)):
-        ax.set_title('aaa')
         ax.imshow(img)
         if labels is not None:
             ax.set_title(labels[i])
@@ -57,22 +48,24 @@ def plotImages(images, labels=None, save_as=None):
     else:
         plt.show()
 
+
 # https://www.tensorflow.org/tutorials/images/classification
 def main(args):
     sess = tf.InteractiveSession()
     random.seed(0)
     np.random.seed(0)
     tf.set_random_seed(0)
-    n_train =  len(glob.glob('datasets/train/*/*'))
-    n_dev =  len(glob.glob('datasets/dev/*/*'))
-    n_test =  len(glob.glob('datasets/test/*/*'))
+    n_train =  len(glob.glob(args.data_dir + '/train/*/*'))
+    n_dev =  len(glob.glob(args.data_dir + '/dev/*/*'))
+    n_test =  len(glob.glob(args.data_dir + '/test/*/*'))
 
-    classes = [path.split('/')[-1] for path in glob.glob('datasets/train/*')]
-    train_data = read_data('datasets/train', classes, args.batch_size, 
+    classes = [path.split('/')[-1] for path in glob.glob(args.data_dir + '/train/*')]
+
+    train_data = read_data(args.data_dir + '/train', classes, args.batch_size, 
                            args.img_height, args.img_width, shuffle=True)
-    dev_data = read_data('datasets/dev', classes, args.batch_size, 
+    dev_data = read_data(args.data_dir + '/dev', classes, args.batch_size, 
                          args.img_height, args.img_width, shuffle=False)
-    test_data = read_data('datasets/test', classes, args.batch_size, 
+    test_data = read_data(args.data_dir + '/test', classes, args.batch_size, 
                           args.img_height, args.img_width, shuffle=False)
 
     tr_img, tr_label = next(train_data)
@@ -110,7 +103,7 @@ def main(args):
 if __name__ == "__main__":
       parser = argparse.ArgumentParser()
       parser.add_argument('model_root')
-      parser.add_argument('--data-dir', default='datasets')
+      parser.add_argument('--data-dir', default='datasets/prediction')
       parser.add_argument('--img-height', default=90)
       parser.add_argument('--img-width', default=75)
       parser.add_argument('--batch-size', default=4)
