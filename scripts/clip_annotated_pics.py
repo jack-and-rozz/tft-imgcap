@@ -2,6 +2,7 @@
 import argparse, os, sys, glob
 sys.path.append(os.getcwd())
 
+from collections import defaultdict
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
@@ -22,9 +23,9 @@ def parse_label(label):
     champion = champion[0].strip()
     return champion, star, items
 
-def clip(entire_img, xml):
-    # Record:  []
-    origin_file = xml.getroot().find('filename').text
+def clip(entire_img, xml, champ_counts):
+    # Record:  [target_file, source_file,]
+    source_file = xml.getroot().find('filename').text
     objects = xml.getroot().findall('object')
     for obj in objects:
         label = obj.find('name').text
@@ -32,16 +33,12 @@ def clip(entire_img, xml):
         xmin, ymin, xmax, ymax = bndbox
         img = entire_img[ymin:ymax, xmin:xmax]
         champion, star, items = parse_label(label)
-        print(champion, star, items)
-        exit(1)
-        # plotImages([img])
-        # # print(label)
-        # # print(bndbox)
-        # exit(1)
-    pass
-    
+        target_file = "%s.%d.png" % (champion, champ_counts[champion])
+        champ_counts[champion] += 1
+        data = [target_file, source_file, champion, star, items]
 
 def main(args):
+    champ_counts = defaultdict(int)
     for xml_path in glob.glob(args.data_dir + '/*.xml'):
         img_path = '.'.join(xml_path.split('.')[:-1]) + '.' + args.rawpics_ext
         if not os.path.exists(img_path):
