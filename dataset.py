@@ -1,5 +1,6 @@
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+# from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras_preprocessing.image import ImageDataGenerator
 
 def read_data(data_dir, classes, batch_size, img_height, img_width, shuffle=False):
     image_generator = ImageDataGenerator(rescale=1./255) 

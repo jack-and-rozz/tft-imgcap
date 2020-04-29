@@ -7,40 +7,78 @@ import matplotlib.pyplot as plt
 
 from dataset import read_data
 from tensorflow.keras import datasets, layers, models
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
 
-
-def define_model(input_shape, output_size, dropout_rate=0.1):
+def define_model(input_shape, output_sizes, dropout_rate=0.1):
+    '''
+    <args>
+    - input_shape: A tuple or list, the shape of input tensor (i.e., an image).
+    - output_sizes: A dictionary of each size of the outputs keyed by the name of properties (e.g., {'champion': 30, 'items': 45})
+    '''
     # via keras
-    model = models.Sequential()
-    model.add(layers.Conv2D(32, (3, 3), activation='relu', 
-                            input_shape=input_shape))
 
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Dropout(dropout_rate))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Dropout(dropout_rate))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-    model.add(layers.Flatten())
-    model.add(layers.Dense(64, activation='relu'))
-    model.add(layers.Dense(output_size, activation='softmax'))
+    # model = models.Sequential()
+    # model.add(layers.Conv2D(32, (3, 3), activation='relu', 
+    #                         input_shape=input_shape))
 
+    # model.add(layers.MaxPooling2D((2, 2)))
+    # model.add(layers.Dropout(dropout_rate))
+    # model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    # model.add(layers.MaxPooling2D((2, 2)))
+    # model.add(layers.Dropout(dropout_rate))
+    # model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    # model.add(layers.Flatten())
+    # model.add(layers.Dense(64, activation='relu'))
+    # model.add(layers.Dense(output_size, activation='softmax'))
+
+    def cnn_layer(prev):
+        conv = layers.Conv2D(32, (3, 3), activation='relu')(prev)
+        pooling = layers.MaxPooling2D((2, 2))(conv)
+        dropout = layers.Dropout(dropout_rate)(pooling)
+        return dropout
+
+    def output_layer(prev, output_name, output_size):
+        dense = layers.Dense(64, activation='relu')(prev)
+        output = layers.Dense(output_size, activation='softmax',
+                              name=output_name)(dense)
+        return output
+
+    inputs = Input(shape = input_shape)
+    layer1 = cnn_layer(inputs)
+    layer2 = cnn_layer(layer1)
+    flatten = layers.Flatten()(layer2)
+
+    outputs = []
+    for output_name, output_size in output_sizes.items():
+        outputs.append(output_layer(flatten, output_name, output_size))
+
+    model = Model(inputs=inputs, outputs=outputs)
     model.summary()
     return model
     
 
 # (todo): 無限ループするカスタムジェネレータを作ってlabelimgでアノテーションしたマルチラベルに対応
+def plotImages(images, labels=None, save_as=None, x=None, y=None):
+    if not (x and y):
+        n = math.sqrt(len(images))
+        if n != int(n):
+            n = int(n) + 1
+        else:
+            n = int(n)
+        x = n
+        y = n
+    fig, axes = plt.subplots(y, x)
 
-
-def plotImages(images, labels=None, save_as=None):
-    fig, axes = plt.subplots(1, len(images))
     axes = axes.flatten()
-    for i, (img, ax) in enumerate(zip(images, axes)):
-        ax.imshow(img)
-        if labels is not None:
-            ax.set_title(labels[i])
+    for i in range(y*x):
+        ax = axes[i]
+
+        if i <= len(images) - 1:
+            img = images[i]
+            ax.imshow(img)
+            if labels is not None:
+                ax.set_title(labels[i])
         ax.axis('off')
     plt.tight_layout()
     if save_as:
@@ -48,13 +86,16 @@ def plotImages(images, labels=None, save_as=None):
     else:
         plt.show()
 
-
 # https://www.tensorflow.org/tutorials/images/classification
 def main(args):
-    sess = tf.InteractiveSession()
+    os.environ['PYTHONHASHSEED'] = '0'
     random.seed(0)
     np.random.seed(0)
     tf.set_random_seed(0)
+    sess = tf.InteractiveSession()
+
+
+
     n_train =  len(glob.glob(args.data_dir + '/train/*/*'))
     n_dev =  len(glob.glob(args.data_dir + '/dev/*/*'))
     n_test =  len(glob.glob(args.data_dir + '/test/*/*'))
@@ -68,16 +109,16 @@ def main(args):
     test_data = read_data(args.data_dir + '/test', classes, args.batch_size, 
                           args.img_height, args.img_width, shuffle=False)
 
-    tr_img, tr_label = next(train_data)
+    # tr_img, tr_label = next(train_data)
 
     batch_size = args.batch_size
     input_shape = (args.img_height, args.img_width, 3)
-    output_size = len(classes)
+    output_sizes = {'champion': len(classes)}
 
-    model = define_model(input_shape, output_size)
+    model = define_model(input_shape, output_sizes)
     model.compile(optimizer='adam',
-                  # loss='sparse_categorical_crossentropy',
-                  loss='categorical_crossentropy',
+                  loss={'champion': 'categorical_crossentropy'},
+                  loss_weights={'champion': 1.0},
                   metrics=['accuracy'])
     model.summary()
     history = model.fit_generator(
