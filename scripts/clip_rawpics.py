@@ -10,6 +10,7 @@ import math
 
 def plotImages(images, labels=None, save_as=None, x=None, y=None):
     if not (x and y):
+        print(math.sqrt(3))
         n = math.sqrt(len(images))
         if n != int(n):
             n = int(n) + 1
