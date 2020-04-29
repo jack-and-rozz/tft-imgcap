@@ -23,7 +23,6 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None):
     axes = axes.flatten()
     for i in range(y*x):
         ax = axes[i]
-
         if i <= len(images) - 1:
             img = images[i]
             ax.imshow(img)

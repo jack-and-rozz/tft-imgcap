@@ -1,8 +1,9 @@
 # coding: utf-8
 import random
-import argparse, os, sys, glob, math
+import argparse, os, sys, glob, math, subprocess
 import numpy as np
 import tensorflow as tf
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from dataset import read_data
@@ -99,29 +100,41 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None):
         plt.show()
 
 # https://www.tensorflow.org/tutorials/images/classification
+# n_train = len(glob.glob(args.data_dir + '/train/*/*'))
+# n_dev =  len(glob.glob(args.data_dir + '/dev/*/*'))
+# n_test =  len(glob.glob(args.data_dir + '/test/*/*'))
+
+# classes = [path.split('/')[-1] for path in glob.glob(args.data_dir + '/train/*')]
+# train_data = read_data(args.data_dir + '/train', classes, args.batch_size, 
+#                        args.img_height, args.img_width, shuffle=True)
+# dev_data = read_data(args.data_dir + '/dev', classes, args.batch_size, 
+#                      args.img_height, args.img_width, shuffle=False)
+# test_data = read_data(args.data_dir + '/test', classes, args.batch_size, 
+#                       args.img_height, args.img_width, shuffle=False)
+
 def main(args):
     os.environ['PYTHONHASHSEED'] = '0'
     random.seed(0)
     np.random.seed(0)
     tf.set_random_seed(0)
     sess = tf.InteractiveSession()
+    # classes = [l.strip() for l in open('predefined_classes.txt') if l.strip()]
+    classes = [l.strip() for l in open('champions.txt') if l.strip()]
 
-
-
-    n_train =  len(glob.glob(args.data_dir + '/train/*/*'))
-    n_dev =  len(glob.glob(args.data_dir + '/dev/*/*'))
-    n_test =  len(glob.glob(args.data_dir + '/test/*/*'))
-
-    classes = [path.split('/')[-1] for path in glob.glob(args.data_dir + '/train/*')]
-
-    train_data = read_data(args.data_dir + '/train', classes, args.batch_size, 
+    train_df =  pd.read_csv(args.data_dir + '/train.csv')
+    dev_df =  pd.read_csv(args.data_dir + '/dev.csv')
+    test_df =  pd.read_csv(args.data_dir + '/test.csv')
+    n_train = len(train_df)
+    n_dev = len(dev_df)
+    n_test = len(test_df)
+    
+    train_data = read_data(args.data_dir, train_df, classes, args.batch_size, 
                            args.img_height, args.img_width, shuffle=True)
-    dev_data = read_data(args.data_dir + '/dev', classes, args.batch_size, 
+    dev_data = read_data(args.data_dir, dev_df, classes, args.batch_size, 
                          args.img_height, args.img_width, shuffle=False)
-    test_data = read_data(args.data_dir + '/test', classes, args.batch_size, 
+    test_data = read_data(args.data_dir, test_df, classes, args.batch_size, 
                           args.img_height, args.img_width, shuffle=False)
-
-    # tr_img, tr_label = next(train_data)
+    # exit(1)
 
     batch_size = args.batch_size
     input_shape = (args.img_height, args.img_width, 3)
@@ -150,13 +163,14 @@ def main(args):
         predictions = [classes[idx] for idx in outputs]
         ground_truths = [classes[idx] for idx in labels]
         titles = [title_template % (predictions[i], ground_truths[i]) for i in range(len(outputs))]
+        images = [images[i] for i in range(images.shape[0])]
         plotImages(images, titles, save_as='test.png')
         break
 
 if __name__ == "__main__":
       parser = argparse.ArgumentParser()
       parser.add_argument('model_root')
-      parser.add_argument('--data-dir', default='datasets/prediction')
+      parser.add_argument('--data-dir', default='datasets/clipped')
       parser.add_argument('--img-height', default=90)
       parser.add_argument('--img-width', default=75)
       parser.add_argument('--batch-size', default=4)

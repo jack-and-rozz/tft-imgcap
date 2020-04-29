@@ -95,4 +95,16 @@
 			<ymax>202</ymax>
 		</bndbox>
 	</object>
+	<object>
+		<name>:tear, rod, bow</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>100</xmin>
+			<ymin>252</ymin>
+			<xmax>163</xmax>
+			<ymax>332</ymax>
+		</bndbox>
+	</object>
 </annotation>
