@@ -1,12 +1,12 @@
 
-# Requirements
+## Requirements
 - Python 3.7.3
 ```bash
 pip install -r requirements.txt
 ln -sf {dataset_path} datasets 
 ```
 
-# Structure of dataset directory
+## Structure of dataset directory
 ```
 datasets
 ├── annotated_pics
@@ -21,7 +21,7 @@ datasets
 ```
 
 
-# Annotation
+## Annotation
 
 動画のキャプチャに対して LabelImg (https://github.com/tzutalin/labelImg) を用いて行う．
 width:80, height: 100くらいの画像をcreateRectBoxから切り抜いてタグ付け．タグのフォーマットは後述．
@@ -34,16 +34,15 @@ cd labelImg
 python labelImg.py
 ```
 
-# Dataset creation from annotated data
+## Dataset creation from annotated data
 ```
 # Suppose we have images and annotation xml files in 'datasets/rawpics/{image}.[png,jpg|xml]', and save the clipped file to 'datasets/clipped'.
 python scripts/clip_annotated_pics.py \
        --data-dir datasets/annotated_pics \
-       --save-dir datasets/clipped 
-
+       --save-dir datasets/clipped
 ```
 
-# Train and test a model
+## Train and test a model
 ```
 python main.py checkpoints/tmp # test.png will be generated.
 ```
