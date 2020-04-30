@@ -41,7 +41,7 @@ python scripts/clip_annotated_pics.py \
        --data-dir datasets/annotated_pics \
        --save-dir datasets/clipped 
 
-
+```
 
 # Train and test a model
 ```
