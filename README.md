@@ -14,10 +14,17 @@ datasets
 │       ├── 00099997.jpg
 │       └── 00099997.xml
 │
-└── not_annotated_pics
-    └── bestsatojp_10.9
-        ├── 2020-04-30-23-13-01.png
-        └── 2020-04-30-23-13-01.xml
+├─── not_annotated_pics
+│   └── bestsatojp_10.9
+│       ├── 2020-04-30-23-13-01.png
+│       └── 2020-04-30-23-13-01.xml
+└── clipped
+    ├── ahri.0.png
+    ├── ahri.1.png
+    ...
+    ├── train.csv
+    ├── dev.csv
+    └── test.csv
 ```
 
 
