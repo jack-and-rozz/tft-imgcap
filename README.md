@@ -34,6 +34,7 @@ python scripts/clip_annotated_pics.py \
 - レオナ星1アイテムなし = leona
 - グレイブス星2にGA,BFがついている場合 = graves*2: GA, BF
 - アイテム置き場に涙とBF = :tear, BF
+- 盗賊のグローブをつけている場合はそこから出てきたアイテムも記入
 
 labelImg/data/predefined_classes.txt を同プロジェクト内のpredefined_classes.txtで上書きするとアノテーションの際ラベルがサジェストされます．
 

@@ -26,6 +26,7 @@ def parse_label(label):
     else:
         champion = 'items'
         star = 0
+    items = sorted(items)
     return champion, star, items
 
 def clip(entire_img, xml, champ_counts):
@@ -44,19 +45,19 @@ def clip(entire_img, xml, champ_counts):
         target_path = args.save_dir + '/' + target_file
         champ_counts[champion] += 1
 
-        # labels = [champion] + ['*%d' % star] + items
-        # l = [target_path, source_file, labels]
+        labels = [champion] + ['*%d' % star] + items
+        # l = [target_file, source_file, labels]
         l = [target_file, source_file, champion, '*%d' % star, items]
         data.append(l)
 
-        if not os.path.exists(target_path):
-            Image.fromarray(img).save(target_path)
+        # if not os.path.exists(target_path):
+        Image.fromarray(img).save(target_path)
     return data
 
 
 def create_dataframe(data):
     # columns = ['clipped', 'original', 'labels']
-    columns = ['clipped', 'original', 'champion', 'star', 'items']
+    columns = ['clipped', 'original', 'champion', 'star', 'item']
     df = pd.DataFrame(data, columns=columns).set_index('clipped')
     return df
 
@@ -82,9 +83,12 @@ def main(args):
     champ_counts = defaultdict(int)
     data = []
     for xml_path in glob.glob(args.data_dir + '/*.xml'):
-        img_path = '.'.join(xml_path.split('.')[:-1]) + '.' + args.rawpics_ext
+        img_path = '.'.join(xml_path.split('.')[:-1]) + '.jpg' 
         if not os.path.exists(img_path):
-            continue
+            img_path = '.'.join(xml_path.split('.')[:-1]) + '.png' 
+            if not os.path.exists(img_path):
+                sys.stderr.write("%s is not found.\n" % img_path)
+                continue
         img = np.asarray(Image.open(img_path))
         xml = ET.parse(xml_path)
         data += clip(img, xml, champ_counts)
@@ -110,7 +114,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='datasets/rawpics')
     parser.add_argument('--save-dir', default='datasets/clipped')
-    parser.add_argument('--rawpics-ext', default='jpg')
     parser.add_argument('--dev_rate', type=float, default=0.05)
     parser.add_argument('--test_rate', type=float, default=0.05)
     args = parser.parse_args()
