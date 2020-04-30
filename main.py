@@ -239,7 +239,7 @@ if __name__ == "__main__":
       # parser.add_argument('--img-width', default=75)
       parser.add_argument('--img-height', type=int, default=100)
       parser.add_argument('--img-width', type=int, default=80)
-      parser.add_argument('--batch-size', type=int, default=6)
+      parser.add_argument('--batch-size', type=int, default=9)
       parser.add_argument('--num-epochs', type=int, default=20)
       parser.add_argument('--dropout-rate', type=float, default=0.25)
       args = parser.parse_args()

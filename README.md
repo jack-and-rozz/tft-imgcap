@@ -28,7 +28,7 @@ python scripts/clip_annotated_pics.py \
 
 # Train and test a model
 ```
-python main.py checkpoints/tmp
+python main.py checkpoints/tmp # test.png will be generated.
 ```
 
 
