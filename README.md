@@ -8,6 +8,7 @@ pip install -r requirements.txt
 # Annotation
 
 動画のキャプチャに対して LabelImg (https://github.com/tzutalin/labelImg) を用いて行う．
+width:80, height: 100くらいの画像をcreateRectBoxから切り抜いてタグ付け．タグのフォーマットは後述．
 
 ```
 git clone https://github.com/tzutalin/labelImg
@@ -38,7 +39,7 @@ python main.py checkpoints/tmp # test.png will be generated.
 例) 
 - レオナ星1アイテムなし = leona
 - グレイブス星2にGA,BFがついている場合 = graves*2: GA, BF
-- アイテム置き場に涙とBF = :tear, BF
+- アイテム置き場に涙とBF = items:tear, BF
 - 盗賊のグローブをつけている場合はそこから出てきたアイテムも記入
 
 labelImg/data/predefined_classes.txt を同プロジェクト内のpredefined_classes.txtで上書きするとアノテーションの際ラベルがサジェストされます．

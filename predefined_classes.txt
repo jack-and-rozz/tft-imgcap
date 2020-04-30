@@ -60,7 +60,7 @@ cloak
 tear
 glove
 deathblade
-
+giantslayer
 GA
 zeke
 gunblade
