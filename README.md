@@ -1,10 +1,9 @@
 
-# How to Run
-```
+# Requirements
+- Python 3.7.3
+```bash
 pip install -r requirements.txt
-python main.py checkpoints/tmp
 ```
-
 
 # Annotation
 
@@ -23,7 +22,13 @@ python labelImg.py
 # Suppose we have images and annotation xml files in 'datasets/rawpics/{image}.[png|xml]', and save the clipped file to 'datasets/clipped'.
 python scripts/clip_annotated_pics.py \
        --data-dir datasets/rawpics \
-       --save-dir datasets/clipped \
+       --save-dir datasets/clipped 
+
+
+
+# Train and test a model
+```
+python main.py checkpoints/tmp
 ```
 
 
