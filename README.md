@@ -22,7 +22,7 @@ python labelImg.py
 ```
 # Suppose we have images and annotation xml files in 'datasets/rawpics/{image}.[png,jpg|xml]', and save the clipped file to 'datasets/clipped'.
 python scripts/clip_annotated_pics.py \
-       --data-dir datasets/rawpics \
+       --data-dir datasets/annotated_pics \
        --save-dir datasets/clipped 
 
 
