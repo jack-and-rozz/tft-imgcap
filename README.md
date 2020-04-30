@@ -34,21 +34,6 @@ cd labelImg
 python labelImg.py
 ```
 
-## Dataset creation from annotated data
-```
-# Suppose we have images and annotation xml files in 'datasets/rawpics/{image}.[png,jpg|xml]', and save the clipped file to 'datasets/clipped'.
-python scripts/clip_annotated_pics.py \
-       --data-dir datasets/annotated_pics \
-       --save-dir datasets/clipped
-```
-
-## Train and test a model
-```
-python main.py checkpoints/tmp # test.png will be generated.
-```
-
-
-
 ## Tags
 フォーマットは[チャンピオン名*星: アイテムのリスト]．アイテムがない場合，星1の場合はそれぞれ省略．
 例) 
@@ -58,4 +43,19 @@ python main.py checkpoints/tmp # test.png will be generated.
 - 盗賊のグローブをつけている場合はそこから出てきたアイテムも記入
 
 labelImg/data/predefined_classes.txt を同プロジェクト内のpredefined_classes.txtで上書きするとアノテーションの際ラベルがサジェストされます．
+
+
+## Dataset creation from annotated data
+```
+# Suppose we have images and annotation xml files in 'datasets/rawpics/{image}.[png,jpg|xml]', and save the clipped file to 'datasets/clipped'.
+python scripts/clip_annotated_pics.py \
+       --data-dir datasets/annotated_pics \
+       --save-dir datasets/clipped
+```
+
+
+## Train and test a model
+```
+python main.py checkpoints/tmp # test.png will be generated.
+```
 
