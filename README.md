@@ -1,7 +1,9 @@
 
 ## Requirements
 - Python 3.7.3
+
 ```bash
+# Commands for preparation
 pip install -r requirements.txt
 ln -sf {dataset_path} datasets 
 ```
