@@ -3,6 +3,7 @@
 - Python 3.7.3
 ```bash
 pip install -r requirements.txt
+ln -sf ${dataset_path} datasets
 ```
 
 # Annotation
