@@ -3,8 +3,23 @@
 - Python 3.7.3
 ```bash
 pip install -r requirements.txt
-ln -sf ${dataset_path} datasets
+ln -sf {dataset_path} datasets 
 ```
+
+# Structure of dataset directory
+```
+datasets
+├── annotated_pics
+│   └── others
+│       ├── 00099997.jpg
+│       └── 00099997.xml
+│
+└── not_annotated_pics
+    └── bestsatojp_10.9
+        ├── 2020-04-30-23-13-01.png
+        └── 2020-04-30-23-13-01.xml
+```
+
 
 # Annotation
 
