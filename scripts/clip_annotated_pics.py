@@ -80,9 +80,10 @@ def separate_data(data, dev_rate, test_rate):
     return train, dev, test
 
 def main(args):
+    os.makedirs(args.save_dir, exist_ok=True)
     champ_counts = defaultdict(int)
     data = []
-    for xml_path in glob.glob(args.data_dir + '/*.xml'):
+    for xml_path in glob.glob(args.data_dir + '/*/*.xml'):
         img_path = '.'.join(xml_path.split('.')[:-1]) + '.jpg' 
         if not os.path.exists(img_path):
             img_path = '.'.join(xml_path.split('.')[:-1]) + '.png' 
@@ -92,7 +93,6 @@ def main(args):
         img = np.asarray(Image.open(img_path))
         xml = ET.parse(xml_path)
         data += clip(img, xml, champ_counts)
-
 
     train, dev, test = separate_data(data, args.dev_rate, args.test_rate)
 
@@ -112,7 +112,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data-dir', default='datasets/rawpics')
+    parser.add_argument('--data-dir', default='datasets/annotated_pics')
     parser.add_argument('--save-dir', default='datasets/clipped')
     parser.add_argument('--dev_rate', type=float, default=0.05)
     parser.add_argument('--test_rate', type=float, default=0.05)
