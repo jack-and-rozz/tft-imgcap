@@ -10,7 +10,7 @@ import math
 
 import pandas as pd
 import xml.etree.ElementTree as ET
-from main import plotImages
+from util import plotImages
 
 def parse_label(label):
     '''

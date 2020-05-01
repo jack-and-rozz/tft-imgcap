@@ -11,8 +11,6 @@ class MultiCategoryIterator(object):
         self._data_gen = data_gen
         self.class_list = class_list
         self.rev_class_list = [{tok:i for i, tok in enumerate(l)} for l in class_list]
-        
-
     def __iter__(self):
         return self
 
@@ -30,7 +28,16 @@ class MultiCategoryIterator(object):
 
 def read_data(data_dir, df, classes, batch_size, img_height, img_width, 
               shuffle=False, x_col='clipped', y_col='champion', seed=0):
-    image_generator = ImageDataGenerator(rescale=1./255) 
+
+    if shuffle == True :
+        # for data augmentation.
+        image_generator = ImageDataGenerator(rescale=1./255, 
+                                             rotation_range=5,
+                                             width_shift_range=.10,
+                                             height_shift_range=.10,
+                                             zoom_range=0.1) 
+    else:
+        image_generator = ImageDataGenerator(rescale=1./255) 
 
     class_mode = 'categorical'
     # class_mode = 'raw'
@@ -51,6 +58,7 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
     #data_gen = MultiCategoryIterator(_data_gen, [classes[col] for col in y_col])
     data_gen = _data_gen
     return data_gen 
+
 
 # flow_from_dataframe(dataframe， directory=None， x_col='filename'， y_col='class'， target_size=(256， 256)， color_mode='rgb'， classes=None， class_mode='categorical'， batch_size=32， shuffle=True， seed=None， save_to_dir=None， save_prefix=''， save_format='png'， subset=None， interpolation='nearest'， drop_duplicates=True)
 
