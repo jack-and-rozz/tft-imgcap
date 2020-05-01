@@ -14,7 +14,6 @@ def define_model(input_shape, output_sizes, cnn_dims=[32, 32],
     - cnn_dims: The numbers of dimensions in each CNN layer. CNN is applied as many times as the length of cnn_dims.
     '''
     # via keras
-
     # model = models.Sequential()
     # model.add(layers.Conv2D(32, (3, 3), activation='relu', 
     #                         input_shape=input_shape))

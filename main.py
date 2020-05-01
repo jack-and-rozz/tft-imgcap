@@ -28,6 +28,7 @@ def save_args(args, argfile='config.yaml'):
     config_path = args.model_root + '/' + argfile
     with open(config_path, 'w') as f:
         f.write(yaml.dump(args.__dict__) + '\n')
+
         # if type(args) == recDotDict:
         #     f.write(yaml.dump(dict(args)) + '\n')
         # else:
@@ -136,6 +137,8 @@ def main(args):
         images = [images[i] for i in range(images.shape[0])]
         evaluation_path = args.model_root + '/evaluations/test.%02d.png' % pic_idx
         plotImages(images, titles, save_as=evaluation_path)
+        if test_batch_size * (pic_idx + 1) >= n_test:
+            break
 
 if __name__ == "__main__":
       parser = argparse.ArgumentParser()
