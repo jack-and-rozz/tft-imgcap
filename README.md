@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ln -sf {dataset_path} datasets 
 ```
 
-## Structure of dataset directory
+## Structure of directory
 ```
 datasets
 ├── annotated_pics
@@ -64,6 +64,6 @@ python scripts/clip_annotated_pics.py \
 
 ## Train and test a model
 ```
-python main.py checkpoints/tmp # test.png will be generated.
+python main.py checkpoints/tmp # trained models and evaluation results will be stored checkpoints/tmp/.
 ```
 
