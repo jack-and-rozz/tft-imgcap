@@ -16,7 +16,7 @@ class MultiCategoryIterator(object):
 
     def __getattr__(self, name):
         return self._data_gen.__getattr__(name)
-        
+
     def __next__(self):
         data, labels = self._data_gen.__next__()
         print(labels)

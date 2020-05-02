@@ -32,7 +32,7 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None):
         x = n
         y = n
     fig, axes = plt.subplots(y, x)
-    
+
     if len(images) == 1:
         ax = axes
         ax.imshow(images[0])

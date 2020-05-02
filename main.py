@@ -16,7 +16,8 @@ from dataset import read_data
 from model import define_model
 from util import plotImages, dotDict
 
-test_batch_size = 9 # To display 3x3 images in a test output.
+# To display 3x3 images in a test output.
+test_batch_size = 9
 
 def read_classes():
     classes = dotDict()
@@ -31,10 +32,10 @@ def save_args(args, argfile='config.yaml'):
     with open(config_path, 'w') as f:
         f.write(yaml.dump(args.__dict__) + '\n')
 
-        # if type(args) == recDotDict:
-        #     f.write(yaml.dump(dict(args)) + '\n')
-        # else:
-        #     f.write(yaml.dump(args.__dict__) + '\n')
+    # if type(args) == recDotDict:
+    #     f.write(yaml.dump(dict(args)) + '\n')
+    # else:
+    #     f.write(yaml.dump(args.__dict__) + '\n')
 
 def make_model_dirs(args):
     model_root = args.model_root
@@ -98,18 +99,16 @@ def main(args):
                          dropout_rate=args.dropout_rate)
 
 
-    # https://www.pyimagesearch.com/2018/12/24/how-to-use-keras-fit-and-fit_generator-a-hands-on-tutorial/
     # Multi-output にするなら自分でスケジューリングしてkeras.train_on_batchを使ったほうがいい？
-
-    # loss_type = 'sparse_categorical_crossentropy'
-
-    modelCheckpoint = ModelCheckpoint(filepath = args.model_root + '/checkpoints/best_model',
-                                      monitor='val_loss',
-                                      verbose=1,
-                                      save_best_only=True,
-                                      save_weights_only=False,
-                                      mode='min',
-                                      period=1)
+    # https://www.pyimagesearch.com/2018/12/24/how-to-use-keras-fit-and-fit_generator-a-hands-on-tutorial/
+    modelCheckpoint = ModelCheckpoint(
+        filepath = args.model_root + '/checkpoints/ckpt',
+        monitor='val_loss',
+        verbose=1,
+        save_best_only=False,
+        save_weights_only=False,
+        mode='min',
+        period=1)
 
     loss_type = 'categorical_crossentropy'
     model.compile(optimizer='adam',
@@ -128,7 +127,7 @@ def main(args):
         callbacks=[modelCheckpoint]
     )
 
-    # TODO: save/load the  models 
+    # TODO: save/load the models 
     # https://qiita.com/tom_eng_ltd/items/7ae0814c2d133431c84a
 
     evaluation(sess, args.model_root, test_data, model, id2class, n_test)
