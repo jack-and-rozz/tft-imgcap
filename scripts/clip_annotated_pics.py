@@ -1,7 +1,7 @@
 # coding: utf-8
 import argparse, os, sys, glob, random
 sys.path.append(os.getcwd())
-
+from tqdm import tqdm
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -83,7 +83,11 @@ def main(args):
     os.makedirs(args.save_dir, exist_ok=True)
     champ_counts = defaultdict(int)
     data = []
-    for xml_path in glob.glob(args.data_dir + '/*/*.xml'):
+
+    xml_paths = glob.glob(args.data_dir + '/*/*.xml')
+    
+    pbar = tqdm(total=len(xml_paths))
+    for xml_path in xml_paths:
         img_path = '.'.join(xml_path.split('.')[:-1]) + '.jpg' 
         if not os.path.exists(img_path):
             img_path = '.'.join(xml_path.split('.')[:-1]) + '.png' 
@@ -93,6 +97,7 @@ def main(args):
         img = np.asarray(Image.open(img_path))
         xml = ET.parse(xml_path)
         data += clip(img, xml, champ_counts)
+        pbar.update(1)
 
     train, dev, test = separate_data(data, args.dev_rate, args.test_rate)
 
