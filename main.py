@@ -10,6 +10,7 @@ from tqdm import tqdm
 from tensorflow.keras import datasets, layers, models
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
+from keras.callbacks import ModelCheckpoint
 
 from dataset import read_data
 from model import define_model
@@ -101,6 +102,15 @@ def main(args):
     # Multi-output にするなら自分でスケジューリングしてkeras.train_on_batchを使ったほうがいい？
 
     # loss_type = 'sparse_categorical_crossentropy'
+
+    modelCheckpoint = ModelCheckpoint(filepath = args.model_root + '/checkpoints/best_model',
+                                      monitor='val_loss',
+                                      verbose=1,
+                                      save_best_only=True,
+                                      save_weights_only=False,
+                                      mode='min',
+                                      period=1)
+
     loss_type = 'categorical_crossentropy'
     model.compile(optimizer='adam',
                   loss={
@@ -114,20 +124,21 @@ def main(args):
         steps_per_epoch=n_train // args.batch_size,
         epochs=args.num_epochs,
         validation_data=dev_data,
-        validation_steps=n_dev // args.batch_size
+        validation_steps=n_dev // args.batch_size,
+        callbacks=[modelCheckpoint]
     )
 
     # TODO: save/load the  models 
     # https://qiita.com/tom_eng_ltd/items/7ae0814c2d133431c84a
 
-    evaluation(args.model_root, test_data, model, id2class)
+    evaluation(sess, args.model_root, test_data, model, id2class, n_test)
 
 
-def evaluation(model_dir, test_data, model, id2class)
+def evaluation(sess, model_dir, test_data, model, id2class, n_test):
     title_template = "Hyp: %s\nRef: %s"
     pbar = tqdm(total=n_test)
     for pic_idx, (images, labels) in enumerate(test_data):
-        outputs = model(images).run() # [batch_size, num_classes]
+        outputs = sess.run(model(images)) # [batch_size, num_classes]
         labels = np.argmax(labels, axis=1)
 
         # show top-1
