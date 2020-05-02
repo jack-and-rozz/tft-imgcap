@@ -2,7 +2,8 @@
 import os, sys, glob, math, subprocess
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
+from itertools import chain
+
 
 class dotDict(dict):
   __getattr__ = dict.__getitem__
@@ -13,6 +14,11 @@ class dotDict(dict):
     if key in self:
       return self[key]
     raise AttributeError("\'%s\' is not in %s" % (str(key), str(self.keys())))
+
+
+def flatten(l):
+  return list(chain.from_iterable(l))
+
 
 # (todo): 無限ループするカスタムジェネレータを作ってlabelimgでアノテーションしたマルチラベルに対応
 def plotImages(images, labels=None, save_as=None, x=None, y=None):

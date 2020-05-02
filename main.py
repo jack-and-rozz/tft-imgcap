@@ -4,6 +4,8 @@ import argparse, os, sys, glob, math, subprocess, yaml
 import numpy as np
 import tensorflow as tf
 import pandas as pd
+from collections import Counter, defaultdict
+from pprint import pprint
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
@@ -14,18 +16,26 @@ from keras.callbacks import ModelCheckpoint
 
 from dataset import read_data
 from model import define_model
-from util import plotImages, dotDict
+from util import plotImages, dotDict, flatten
 
 # To display 3x3 images in a test output.
 test_batch_size = 9
 
-def read_classes():
-    classes = dotDict()
-    for path in glob.glob('classes/*.txt'):
-        label_type = path.split('/')[-1].split('.')[0]
-        classes[label_type] = [l.strip() for l in open(path) if l.strip()]
-    # classes.star = [l.strip() for l in open('classes/star.txt') if l.strip()]
-    return classes
+def get_class_weight(file_path, key, class2id):
+    valid_classes = set([l.strip() for l in open('classes/%s.txt' % key)])
+    df = pd.read_csv(file_path)
+    data = df[key].tolist()
+
+    if type(data[0]) == list:
+        data = flatten(data)
+    
+    hist = Counter(data)
+    weights = defaultdict(float)
+    for k in hist:
+
+        # weights[class2id[k]] = float(hist[k]) / sum(hist.values()) if k in valid_classes else 0.
+        weights[class2id[k]] = 1.0 / hist[k] if k in valid_classes else 0.
+    return weights
 
 def save_args(args, argfile='config.yaml'):
     config_path = args.model_root + '/' + argfile
@@ -62,7 +72,6 @@ def main(args):
     n_train = len(train_df)
     n_dev = len(dev_df)
     n_test = len(test_df)
-
     class2id = None
     # PCACA: https://qiita.com/koshian2/items/78de8ccd09dd2998ddfc
     train_data = read_data(args.data_dir, train_df, class2id, args.batch_size, 
@@ -79,8 +88,9 @@ def main(args):
                           args.img_height, args.img_width, 
                           y_col=args.label_type,
                           shuffle=False)
-    
     id2class = [k for k in class2id]
+    class_weight = get_class_weight(args.data_dir + '/train.csv', args.label_type, class2id) # Loss weights to handle imbalance classes.
+
 
     # DEBUG
     # for tr_d, tr_l in dev_data:
@@ -124,7 +134,8 @@ def main(args):
         epochs=args.num_epochs,
         validation_data=dev_data,
         validation_steps=n_dev // args.batch_size,
-        callbacks=[modelCheckpoint]
+        callbacks=[modelCheckpoint],
+        class_weight=class_weight,
     )
 
     # TODO: save/load the models 
@@ -155,7 +166,7 @@ def evaluation(sess, model_dir, test_data, model, id2class, n_test):
         pbar.update(test_batch_size)
         if test_batch_size * (pic_idx + 1) >= n_test:
             break
-
+    print(file=sys.stderr)
     print("Evaluation results are saved to '%s'." % (model_dir + '/evaluations'), file=sys.stderr)
 
 if __name__ == "__main__":
