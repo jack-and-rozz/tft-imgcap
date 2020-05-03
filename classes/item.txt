@@ -1,4 +1,4 @@
-EMPTY
+-
 BF
 bow
 vest

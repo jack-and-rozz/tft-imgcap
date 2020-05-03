@@ -26,7 +26,7 @@ def parse_label(label):
     else:
         champion = 'items'
         star = 0
-    items = sorted(items)
+    # items = sorted(items)
     return champion, star, items
 
 def clip(entire_img, xml, champ_counts):
@@ -45,9 +45,9 @@ def clip(entire_img, xml, champ_counts):
         target_path = args.save_dir + '/' + target_file
         champ_counts[champion] += 1
 
-        labels = [champion] + ['*%d' % star] + items
+        # labels = [champion] + ['*%d' % star] + items
         # l = [target_file, source_file, labels]
-        l = [target_file, source_file, champion, '*%d' % star, items]
+        l = [target_file, source_file, champion, '*%d' % star] + items[:3]
         data.append(l)
 
         # if not os.path.exists(target_path):
@@ -57,7 +57,8 @@ def clip(entire_img, xml, champ_counts):
 
 def create_dataframe(data):
     # columns = ['clipped', 'original', 'labels']
-    columns = ['clipped', 'original', 'champion', 'star', 'item']
+    # columns = ['clipped', 'original', 'champion', 'star', 'item']
+    columns = ['clipped', 'original', 'champion', 'star', 'item1', 'item2', 'item3']
     df = pd.DataFrame(data, columns=columns).set_index('clipped')
     return df
 
@@ -85,7 +86,7 @@ def main(args):
     data = []
 
     xml_paths = glob.glob(args.data_dir + '/*/*.xml')
-    
+
     pbar = tqdm(total=len(xml_paths))
     for xml_path in xml_paths:
         img_path = '.'.join(xml_path.split('.')[:-1]) + '.jpg' 
