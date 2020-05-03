@@ -26,6 +26,19 @@ import numpy as np
 #         # exit(1)
 #         return data, labels
 
+def read_df(path, label_type):
+    df = pd.read_csv(path).fillna('-')
+    if label_type == 'item':
+        df = df[df['champion'] != 'items']
+
+    return df
+
+def load_classes_from_definition(label_type):
+    class_def = "classes/%s.txt" % label_type
+    class2id = {c.strip():i for i, c in enumerate(open(class_def))}
+    id2class = [c for c in class2id]
+    return id2class, class2id
+
 # Not used for now.
 class MultiOutputIterator(object):
     def __init__(self, data_gen, classes):
@@ -68,13 +81,13 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
     else:
         image_generator = ImageDataGenerator(rescale=1./255) 
 
-    class_mode = 'categorical'
-    # class_mode = 'raw'
-    # class_mode = 'multi_output'
     class_mode = 'sparse'
-    class_mode = 'raw'
     data_dir = os.getcwd() + '/' + data_dir
-    
+
+    if y_col == 'item':
+        y_col = ['item1', 'item2', 'item3']
+        class_mode = 'multi_output'
+
     _data_gen = image_generator.flow_from_dataframe(
         df, directory=data_dir,
         x_col=x_col,
@@ -87,13 +100,6 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
         seed=seed,
     )
     data_gen = _data_gen
-
-    classes = _data_gen.class_indices
-    print(classes)
-    exit(1)
-    data_gen = MultiOutputIterator(_data_gen, classes)
-
-
     return data_gen 
 
 # When using only one label as the target.

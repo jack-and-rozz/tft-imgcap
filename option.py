@@ -22,7 +22,7 @@ def add_model_args(parser):
 
 def add_train_args(parser):
     # Training 
-    parser.add_argument('--num-epochs', type=int, default=100, help=' ')
+    parser.add_argument('--max-epoch', type=int, default=100, help=' ')
     parser.add_argument('--batch-size', type=int, default=20, help=' ')
     parser.add_argument('--init-lr', type=float, default=1e-3, help=' ')
     parser.add_argument('--final-lr', type=float, default=1e-7, help=' ')

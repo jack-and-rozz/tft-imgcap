@@ -8,7 +8,7 @@ from collections import Counter
 
 from tensorflow.keras.models import load_model
 
-from dataset import read_data
+from dataset import read_data, read_df
 from model import define_model
 from util import plotImages, dotDict, flatten, get_best_and_final_model_path
 from option import get_test_parser
@@ -16,7 +16,7 @@ from option import get_test_parser
 # To display 3x3 images in a test output.
 test_batch_size = 9
 
-def load_classes(model_root):
+def load_classes_from_saved_model(model_root):
     id2class = [c.strip() for c in open(model_root + '/classes.txt')]
     class2id = {c:i for i,c in enumerate(id2class)}
     return id2class, class2id
@@ -32,7 +32,7 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
     for pic_idx, (images, labels) in enumerate(test_data):
         # outputs = sess.run(model(images)) # [batch_size, num_classes]
         outputs = model.predict(images)
-        labels = np.argmax(labels, axis=1)
+        # labels = np.argmax(labels, axis=1) # when reading in 'categorical' mode.
 
         # show top-1
         outputs = np.argmax(outputs, axis=1)
@@ -41,7 +41,7 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
         # show top-3
         # outputs = (-outputs).argsort(axis=-1)[:, :3]
         # hypotheses = [', '.join([id2class[idx] for idx in idx_list]) for idx_list in outputs]
-        references = [id2class[idx] for idx in labels]
+        references = [id2class[idx] for idx in labels.astype(np.int32)]
 
         all_hypotheses += hypotheses
         all_references += references
@@ -65,15 +65,15 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
 
 def main(args):
     sess = tf.InteractiveSession()
-    id2class, class2id = load_classes(args.model_root)
+    id2class, class2id = load_classes_from_saved_model(args.model_root)
+    test_df = read_df(args.data_dir + '/test.csv', args.label_type)
 
-    test_df =  pd.read_csv(args.data_dir + '/test.csv')
     n_test = len(test_df)
     test_data = read_data(args.data_dir, test_df, class2id, test_batch_size, 
                           args.img_height, args.img_width, 
                           y_col=args.label_type,
                           shuffle=False)
-    # model = load_best_model(args.model_root)
+
     best_model_path, _ = get_best_and_final_model_path(args.model_root)
     model = load_model(best_model_path)
     output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir

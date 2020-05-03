@@ -14,7 +14,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
 from test import evaluation, test_batch_size
-from dataset import read_data
+from dataset import read_df, read_data, load_classes_from_definition
 from model import define_model
 from util import plotImages, dotDict, flatten, get_best_and_final_model_path, parse_epoch_and_loss_from_path
 from option import get_train_parser
@@ -71,29 +71,28 @@ def main(args):
     make_model_dirs(args)
     fix_random_seed()
 
-    train_df =  pd.read_csv(args.data_dir + '/train.csv')
-    dev_df =  pd.read_csv(args.data_dir + '/dev.csv')
-    test_df =  pd.read_csv(args.data_dir + '/test.csv')
-    if args.label_type == 'item':
-        train_df = train_df.where(df['champion'] != 'items')
-        dev_df = train_df.where(df['champion'] != 'items')
-        test_df = train_df.where(df['champion'] != 'items')
+    # class2id, id2class = load_classes_from_definition(args.label_type)
+    train_df = read_df(args.data_dir + '/train.csv', args.label_type)
+    dev_df = read_df(args.data_dir + '/dev.csv', args.label_type)
+    test_df = read_df(args.data_dir + '/test.csv', args.label_type)
 
     n_train = len(train_df)
     n_dev = len(dev_df)
     n_test = len(test_df)
+
+    # class2id, id2class = load_classes_from_definition(args.label_type)
     class2id = None
     # PCACA: https://qiita.com/koshian2/items/78de8ccd09dd2998ddfc
     train_data = read_data(args.data_dir, train_df, class2id, args.batch_size, 
                            args.img_height, args.img_width, 
                            y_col=args.label_type,
                            shuffle=True)
-    # class2id = train_data.class_indices
-    # print(class2id)
-    # id2class = [k for k in class2id]
     for img, lb in train_data:
         print(lb)
         exit(1)
+    class2id = train_data.class_indices
+    id2class = [k for k in class2id]
+
 
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
                          args.img_height, args.img_width, 
@@ -133,7 +132,7 @@ def main(args):
         mode='min',
         period=1)
 
-    loss_type = 'categorical_crossentropy'
+    loss_type = 'sparse_categorical_crossentropy'
 
     opt = Adam(lr=args.init_lr)
     model.compile(optimizer=opt,
@@ -150,7 +149,7 @@ def main(args):
     lr_decay = LearningRateScheduler(schedule)
     kwargs = {
         'steps_per_epoch': n_train // args.batch_size,
-        'epochs':args.num_epochs,
+        'epochs':args.max_epoch,
         'validation_data': dev_data,
         'validation_steps' :n_dev // args.batch_size,
         'callbacks' :[modelCheckpoint, lr_decay],
