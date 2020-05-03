@@ -83,6 +83,9 @@ def main(args):
                            args.img_height, args.img_width, 
                            y_col=args.label_type,
                            shuffle=True)
+    # for img, lb in train_data:
+    #     print(lb.shape)
+    #     exit(1)
     class2id = train_data.class_indices
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
                          args.img_height, args.img_width, 
@@ -93,6 +96,7 @@ def main(args):
                           args.img_height, args.img_width, 
                           y_col=args.label_type,
                           shuffle=False)
+
     id2class = [k for k in class2id]
     class_weight = get_class_weight(args.data_dir + '/train.csv', args.label_type, class2id) # Loss weights to handle imbalance classes.
     save_classes(args.model_root, class2id)

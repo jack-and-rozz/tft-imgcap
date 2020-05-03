@@ -27,8 +27,8 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
     title_template = "Hyp: %s\nRef: %s"
     all_hypotheses = []
     all_references = []
-    pbar = tqdm(total=n_test)
 
+    pbar = tqdm(total=n_test)
     for pic_idx, (images, labels) in enumerate(test_data):
         # outputs = sess.run(model(images)) # [batch_size, num_classes]
         outputs = model.predict(images)
