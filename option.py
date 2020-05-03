@@ -7,7 +7,7 @@ def add_common_args(parser):
 
 def add_data_args(parser):
     # Data
-    parser.add_argument('--label-type', default='champion', 
+    parser.add_argument('--label-types', type=str, default='champion', 
                         choices=['champion', 'star', 'item'], help=' ')
     parser.add_argument('--data-dir', default='datasets/clipped', 
                         help='Directory to store csv files of labels and images clipped from annotated screen shots.')

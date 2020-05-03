@@ -12,6 +12,7 @@ from tensorflow.keras.models import Sequential, Model, load_model
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from tensorflow.keras.utils import to_categorical
 
 from test import evaluation, test_batch_size
 from dataset import read_df, read_data, load_classes_from_definition
@@ -26,11 +27,11 @@ def get_class_weight(file_path, key, class2id):
 
     if type(data[0]) == list:
         data = flatten(data)
-    
     hist = Counter(data)
     weights = defaultdict(float)
     for k in hist:
-        weights[class2id[k]] = 1.0 / hist[k] if k in valid_classes else 0.
+        if k in valid_classes:
+            weights[class2id[k]] = 1.0 / hist[k] 
     return weights
 
 def save_args(args, argfile='config.yaml'):
@@ -71,17 +72,17 @@ def main(args):
     make_model_dirs(args)
     fix_random_seed()
 
-    # class2id, id2class = load_classes_from_definition(args.label_type)
-    train_df = read_df(args.data_dir + '/train.csv', args.label_type)
-    dev_df = read_df(args.data_dir + '/dev.csv', args.label_type)
-    test_df = read_df(args.data_dir + '/test.csv', args.label_type)
+    # id2class, class2id = load_classes_from_definition(args.label_type)
+
+    class2id = None
+    train_df = read_df(args.data_dir + '/train.csv', args.label_type, class2id)
+    dev_df = read_df(args.data_dir + '/dev.csv', args.label_type, class2id)
+    test_df = read_df(args.data_dir + '/test.csv', args.label_type, class2id)
 
     n_train = len(train_df)
     n_dev = len(dev_df)
     n_test = len(test_df)
 
-    # class2id, id2class = load_classes_from_definition(args.label_type)
-    class2id = None
     # PCACA: https://qiita.com/koshian2/items/78de8ccd09dd2998ddfc
     train_data = read_data(args.data_dir, train_df, class2id, args.batch_size, 
                            args.img_height, args.img_width, 
@@ -90,9 +91,9 @@ def main(args):
     for img, lb in train_data:
         print(lb)
         exit(1)
+
     class2id = train_data.class_indices
     id2class = [k for k in class2id]
-
 
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
                          args.img_height, args.img_width, 

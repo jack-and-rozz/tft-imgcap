@@ -1,6 +1,7 @@
 
 # from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import os
+from collections import defaultdict
 from keras_preprocessing.image import ImageDataGenerator
 import pandas as pd
 import numpy as np
@@ -26,17 +27,29 @@ import numpy as np
 #         # exit(1)
 #         return data, labels
 
-def read_df(path, label_type):
+def read_df(path, label_type, class2id=None):
     df = pd.read_csv(path).fillna('-')
     if label_type == 'item':
         df = df[df['champion'] != 'items']
+
+    if class2id is not None:
+        pass
+        # print(np.all(df['item1']) in class2id)
+        # print(np.any(df['item1']) in class2id)
+        # exit(1)
+        # if label_type == 'item':
+        #     df = df[df['item1'] in class2id][df['item2'] in class2id][df['item3'] in class2id]
+        # else:
+        #     df = df[df[label_type] in class2id]
 
     return df
 
 def load_classes_from_definition(label_type):
     class_def = "classes/%s.txt" % label_type
-    class2id = {c.strip():i for i, c in enumerate(open(class_def))}
-    id2class = [c for c in class2id]
+    id2class = [c.strip() for c in open(class_def)]
+    class2id = defaultdict(int)
+    for i, c in enumerate(id2class):
+        class2id[c] = i
     return id2class, class2id
 
 # Not used for now.
@@ -87,12 +100,15 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
     if y_col == 'item':
         y_col = ['item1', 'item2', 'item3']
         class_mode = 'multi_output'
+    if type(y_col) != list:
+        y_col=[y_col]
+        class_mode = 'multi_output'
 
     _data_gen = image_generator.flow_from_dataframe(
         df, directory=data_dir,
         x_col=x_col,
         y_col=y_col,
-        shuffle=False, 
+        shuffle=shuffle, 
         classes=classes,
         target_size=(img_height, img_width),
         class_mode=class_mode,
