@@ -1,5 +1,5 @@
 # coding: utf-8
-import os, sys, glob, math, subprocess
+import os, sys, glob, math, subprocess, re
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import chain
@@ -61,4 +61,29 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None):
         plt.savefig(save_as)
     else:
         plt.show()
+
+
+def parse_epoch_and_loss_from_path(path):
+    pattern = "ckpt.([0-9]+)-([0-9\.]+)\.hdf5"
+    m = re.search(pattern, path.split('/')[-1])
+    if not m:
+        return None, None
+
+    epoch, loss = m.groups()
+    return int(epoch), float(loss)
+
+def get_best_and_final_model_path(model_root):
+    ckpt_dir = model_root + '/checkpoints'
+    checkpoint_paths = glob.glob(ckpt_dir + '/*')
+    if len(checkpoint_paths) == 0:
+        return None, None
+    val_losses = []
+    for path in checkpoint_paths:
+        epoch, loss = parse_epoch_and_loss_from_path(path)
+        val_losses += [(epoch, loss, path)]
+    val_losses = list(sorted(val_losses, key=lambda x: (x[1], -x[0])))
+    best_model_path = val_losses[0][-1]
+    val_losses = list(sorted(val_losses, key=lambda x: -x[0]))
+    final_model_path = val_losses[0][-1]
+    return best_model_path, final_model_path
 
