@@ -1,0 +1,53 @@
+# coding: utf-8
+import argparse
+
+def add_common_args(parser):
+    parser.add_argument('model_root', help='Directory to save the trained model, evaluation results, etc.')
+    return parser
+
+def add_data_args(parser):
+    # Data
+    parser.add_argument('--label-type', default='champion', 
+                        choices=['champion', 'star', 'item'], help=' ')
+    parser.add_argument('--data-dir', default='datasets/clipped', 
+                        help='Directory to store csv files of labels and images clipped from annotated screen shots.')
+    parser.add_argument('--img-height', type=int, default=100, help=' ')
+    parser.add_argument('--img-width', type=int, default=80, help=' ')
+    return parser
+    
+def add_model_args(parser):
+    parser.add_argument('--cnn-dims', metavar='N', type=int,
+                        default=[32, 32], nargs='+', help=' ')
+    return parser
+
+def add_train_args(parser):
+    # Training 
+    parser.add_argument('--num-epochs', type=int, default=100, help=' ')
+    parser.add_argument('--batch-size', type=int, default=20, help=' ')
+    parser.add_argument('--init-lr', type=float, default=1e-3, help=' ')
+    parser.add_argument('--final-lr', type=float, default=1e-7, help=' ')
+    parser.add_argument('--lr-decay-rate', type=float, default=0.95, 
+                        help='Learning rate decay per epoch.')
+    parser.add_argument('--dropout-rate', type=float, default=0.25, help=' ')
+    parser.add_argument('--enable-class-weight', action="store_true", 
+                        default=False, help=' ')
+    return parser
+
+def add_test_args(parser):
+    parser.add_argument('--output-dir', type=str, default=None, help=' ')
+    return parser
+
+def get_train_parser():
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = add_common_args(parser)
+    parser = add_data_args(parser)
+    parser = add_model_args(parser)
+    parser = add_train_args(parser)
+    return parser
+
+def get_test_parser():
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = add_common_args(parser)
+    parser = add_data_args(parser)
+    parser = add_test_args(parser)
+    return parser
