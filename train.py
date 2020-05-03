@@ -74,6 +74,11 @@ def main(args):
     train_df =  pd.read_csv(args.data_dir + '/train.csv')
     dev_df =  pd.read_csv(args.data_dir + '/dev.csv')
     test_df =  pd.read_csv(args.data_dir + '/test.csv')
+    if args.label_type == 'item':
+        train_df = train_df.where(df['champion'] != 'items')
+        dev_df = train_df.where(df['champion'] != 'items')
+        test_df = train_df.where(df['champion'] != 'items')
+
     n_train = len(train_df)
     n_dev = len(dev_df)
     n_test = len(test_df)
