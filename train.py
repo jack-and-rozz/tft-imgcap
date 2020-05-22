@@ -72,12 +72,16 @@ def main(args):
     make_model_dirs(args)
     fix_random_seed()
 
-    # id2class, class2id = load_classes_from_definition(args.label_type)
+    id2class = dotDict()
+    class2id = dotDict()
+    for label_type in args.label_types:
+        _id2class, _class2id = load_classes_from_definition(label_type)
+        id2class[label_type] = _id2class
+        class2id[label_type] = _class2id
 
-    class2id = None
-    train_df = read_df(args.data_dir + '/train.csv', args.label_type, class2id)
-    dev_df = read_df(args.data_dir + '/dev.csv', args.label_type, class2id)
-    test_df = read_df(args.data_dir + '/test.csv', args.label_type, class2id)
+    train_df = read_df(args.data_dir + '/train.csv', args.label_types, class2id)
+    dev_df = read_df(args.data_dir + '/dev.csv', args.label_types, class2id)
+    test_df = read_df(args.data_dir + '/test.csv', args.label_types, class2id)
 
     n_train = len(train_df)
     n_dev = len(dev_df)
@@ -86,30 +90,26 @@ def main(args):
     # PCACA: https://qiita.com/koshian2/items/78de8ccd09dd2998ddfc
     train_data = read_data(args.data_dir, train_df, class2id, args.batch_size, 
                            args.img_height, args.img_width, 
-                           y_col=args.label_type,
+                           y_col=args.label_types,
                            shuffle=True)
     for img, lb in train_data:
         print(lb)
         exit(1)
 
-    class2id = train_data.class_indices
-    id2class = [k for k in class2id]
-
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
                          args.img_height, args.img_width, 
-                         y_col=args.label_type,
+                         y_col=args.label_types,
                          shuffle=False)
 
     test_data = read_data(args.data_dir, test_df, class2id, test_batch_size, 
                           args.img_height, args.img_width, 
-                          y_col=args.label_type,
+                          y_col=args.label_types,
                           shuffle=False)
 
-    class_weight = get_class_weight(args.data_dir + '/train.csv', args.label_type, class2id) # Loss weights to handle imbalance classes.
-    save_classes(args.model_root, class2id)
-
+    class_weight = {get_class_weight(args.data_dir + '/train.csv', label_type, class2id) for label_type in args.label_types} # Loss weights to handle imbalance classes.
     input_shape = (args.img_height, args.img_width, 3)
-    output_sizes = {args.label_type: len(class2id)}
+
+    output_sizes = {label_type: len(class2id[label_type]) for label_type in args.label_types}
 
     _, final_model_path = get_best_and_final_model_path(args.model_root)
     if final_model_path:
@@ -134,13 +134,10 @@ def main(args):
         period=1)
 
     loss_type = 'sparse_categorical_crossentropy'
-
     opt = Adam(lr=args.init_lr)
-    model.compile(optimizer=opt,
-                  loss={
-                      args.label_type: loss_type,
-                  },
-                  loss_weights={args.label_type: 1.0},
+    loss = {label_type: loss_type for label_type in args.label_types},
+    loss_weights = {label_type: 1.0 for label_type in args.label_types}
+    model.compile(optimizer=opt, loss=loss, loss_weights=loss_weights,
                   metrics=['accuracy'])
     model.summary()
 

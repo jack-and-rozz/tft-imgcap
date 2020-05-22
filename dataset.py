@@ -29,8 +29,9 @@ import numpy as np
 
 def read_df(path, label_type, class2id=None):
     df = pd.read_csv(path).fillna('-')
-    if label_type == 'item':
-        df = df[df['champion'] != 'items']
+
+    # if label_type == 'item':  # Remove items?
+    #     df = df[df['champion'] != 'items']
 
     if class2id is not None:
         pass
@@ -94,15 +95,12 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
     else:
         image_generator = ImageDataGenerator(rescale=1./255) 
 
-    class_mode = 'sparse'
     data_dir = os.getcwd() + '/' + data_dir
+    class_mode = 'sparse'
+    class_mode = 'multi_output'
 
-    if y_col == 'item':
-        y_col = ['item1', 'item2', 'item3']
-        class_mode = 'multi_output'
     if type(y_col) != list:
         y_col=[y_col]
-        class_mode = 'multi_output'
 
     _data_gen = image_generator.flow_from_dataframe(
         df, directory=data_dir,
