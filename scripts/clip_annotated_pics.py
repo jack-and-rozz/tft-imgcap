@@ -48,12 +48,12 @@ def clip(entire_img, xml, champ_counts):
         target_path = args.save_dir + '/' + target_file
         champ_counts[champion] += 1
 
-        # labels = [champion] + ['*%d' % star] + items
-        # l = [target_file, source_file, labels]
+        if champion == 'items':
+            continue
+
         l = [target_file, source_file, champion, '*%d' % star] + items[:3]
         data.append(l)
 
-        # if not os.path.exists(target_path):
         Image.fromarray(img).save(target_path)
     return data
 

@@ -14,7 +14,6 @@ fizz
 gangplank
 graves
 irelia
-items
 jarvan4
 jayce
 jhin
