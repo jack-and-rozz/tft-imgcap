@@ -12,6 +12,8 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 from util import plotImages
 
+EMPTY = '-'
+
 def parse_label(label):
     '''
     - format: champion(*star)(:item1, item2)
@@ -23,10 +25,12 @@ def parse_label(label):
         champion = label[0].split('*')
         star = int(champion[1]) if len(champion) > 1 else 1
         champion = champion[0].strip()
+
+        if champion == 'items':
+            star = 0
     else:
         champion = 'items'
         star = 0
-    # items = sorted(items)
     return champion, star, items
 
 def clip(entire_img, xml, champ_counts):
@@ -41,7 +45,6 @@ def clip(entire_img, xml, champ_counts):
         img = entire_img[ymin:ymax, xmin:xmax]
         champion, star, items = parse_label(label)
         target_file = "%s.%d.png" % (champion, champ_counts[champion])
-        # target_path = os.getcwd() + '/' + args.save_dir + '/' + target_file
         target_path = args.save_dir + '/' + target_file
         champ_counts[champion] += 1
 
@@ -80,13 +83,26 @@ def separate_data(data, dev_rate, test_rate):
     test = [data[idx] for idx in test_indices]
     return train, dev, test
 
+def read_empty_fields(data_dir):
+    data = []
+    for i, path in enumerate(glob.glob(data_dir + '/*.png')):
+        src_filename = path.split('/')[-1]
+        empty_dirname = path.split('/')[-2]
+        tgt_filename = 'empty.%d.png' % i
+        src_path = '../' + empty_dirname + '/' + src_filename
+        tgt_path = args.save_dir + '/' + tgt_filename
+        d = [tgt_filename, src_filename, EMPTY, '*0', []]
+        os.system('ln -sf %s %s' % (src_path, tgt_path))
+        data.append(d)
+    return data
+
 def main(args):
     os.makedirs(args.save_dir, exist_ok=True)
     champ_counts = defaultdict(int)
     data = []
+    data += read_empty_fields(args.empty_clips_dir)
 
     xml_paths = glob.glob(args.data_dir + '/*/*.xml')
-
     pbar = tqdm(total=len(xml_paths))
     for xml_path in xml_paths:
         img_path = '.'.join(xml_path.split('.')[:-1]) + '.jpg' 
@@ -119,6 +135,8 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='datasets/annotated_pics')
+    parser.add_argument('--empty-clips-dir', default='datasets/emptys', 
+                        help='Clips containing no champions, prepared separately from annotated pics.')
     parser.add_argument('--save-dir', default='datasets/clipped')
     parser.add_argument('--dev_rate', type=float, default=0.05)
     parser.add_argument('--test_rate', type=float, default=0.05)
