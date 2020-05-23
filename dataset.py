@@ -59,7 +59,7 @@ def load_classes_from_definition(label_types):
     id2class = dotDict()
     class2id = dotDict()
     for label_type in label_types:
-        _id2class, _class2id = load_classes_from_definition(label_type)
+        _id2class, _class2id = _load_classes_from_definition(label_type)
         id2class[label_type] = _id2class
         class2id[label_type] = _class2id
     return id2class, class2id
