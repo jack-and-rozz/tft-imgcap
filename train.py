@@ -31,7 +31,7 @@ def get_class_weight(file_path, key, class2id):
     weights = defaultdict(float)
     for k in hist:
         if k in valid_classes:
-            weights[class2id[k]] = 1.0 / hist[k] 
+            weights[class2id[key][k]] = 1.0 / hist[k] if k in hist else 0.
     return weights
 
 def save_args(args, argfile='config.yaml'):
@@ -82,7 +82,7 @@ def main(args):
     train_df = read_df(args.data_dir + '/train.csv', args.label_types, class2id)
     dev_df = read_df(args.data_dir + '/dev.csv', args.label_types, class2id)
     test_df = read_df(args.data_dir + '/test.csv', args.label_types, class2id)
-
+    
     n_train = len(train_df)
     n_dev = len(dev_df)
     n_test = len(test_df)
@@ -92,9 +92,9 @@ def main(args):
                            args.img_height, args.img_width, 
                            y_col=args.label_types,
                            shuffle=True)
-    for img, lb in train_data:
-        print(lb)
-        exit(1)
+    # for img, lb in train_data:
+    #     print(lb)
+    #     exit(1)
 
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
                          args.img_height, args.img_width, 
@@ -106,7 +106,7 @@ def main(args):
                           y_col=args.label_types,
                           shuffle=False)
 
-    class_weight = {get_class_weight(args.data_dir + '/train.csv', label_type, class2id) for label_type in args.label_types} # Loss weights to handle imbalance classes.
+    class_weight = {label_type:get_class_weight(args.data_dir + '/train.csv', label_type, class2id) for label_type in args.label_types} # Loss weights to handle imbalance classes.
     input_shape = (args.img_height, args.img_width, 3)
 
     output_sizes = {label_type: len(class2id[label_type]) for label_type in args.label_types}
@@ -133,12 +133,14 @@ def main(args):
         mode='min',
         period=1)
 
-    loss_type = 'sparse_categorical_crossentropy'
     opt = Adam(lr=args.init_lr)
-    loss = {label_type: loss_type for label_type in args.label_types},
+    loss = {label_type: 'sparse_categorical_crossentropy' for label_type in args.label_types}
     loss_weights = {label_type: 1.0 for label_type in args.label_types}
+    metrics = {label_type: 'accuracy' for label_type in args.label_types}
+
+
     model.compile(optimizer=opt, loss=loss, loss_weights=loss_weights,
-                  metrics=['accuracy'])
+                  metrics=metrics)
     model.summary()
 
     schedule = fixed_decay_scheduler(args.init_lr, 

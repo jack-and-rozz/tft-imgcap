@@ -96,11 +96,19 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
         image_generator = ImageDataGenerator(rescale=1./255) 
 
     data_dir = os.getcwd() + '/' + data_dir
-    class_mode = 'sparse'
-    class_mode = 'multi_output'
 
-    if type(y_col) != list:
-        y_col=[y_col]
+    ### DEBUG: single output
+    class_mode = 'sparse'    
+    classes = classes[y_col[0]]
+    y_col = y_col[0]
+    ###### ### ### ### ### 
+
+
+    ### DEBUG: multi output
+    # class_mode = 'multi_output'
+    # if type(y_col) != list:
+    #     y_col=[y_col]
+    ########################
 
     _data_gen = image_generator.flow_from_dataframe(
         df, directory=data_dir,
