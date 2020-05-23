@@ -45,7 +45,6 @@ def clip(entire_img, xml, champ_counts):
         img = entire_img[ymin:ymax, xmin:xmax]
         champion, star, items = parse_label(label)
         target_file = "%s.%d.png" % (champion, champ_counts[champion])
-        # target_path = os.getcwd() + '/' + args.save_dir + '/' + target_file
         target_path = args.save_dir + '/' + target_file
         champ_counts[champion] += 1
 
