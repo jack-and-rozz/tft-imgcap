@@ -66,7 +66,7 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
 def main(args):
     sess = tf.InteractiveSession()
     # id2class, class2id = load_classes_from_saved_model(args.model_root)
-    id2class, class2id = load_classes_from_definition(label_type)
+    id2class, class2id = load_classes_from_definition(args.label_types)
     test_df = read_df(args.data_dir + '/' + args.test_csv, args.label_types)
 
     n_test = len(test_df)

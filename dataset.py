@@ -45,13 +45,24 @@ def read_df(path, label_type, class2id=None):
 
     return df
 
-def load_classes_from_definition(label_type):
-    class_def = "classes/%s.txt" % label_type
-    id2class = [c.strip() for c in open(class_def)]
-    class2id = defaultdict(int)
-    for i, c in enumerate(id2class):
-        class2id[c] = i
+
+def load_classes_from_definition(label_types):
+    def _load_classes_from_definition(label_type):
+        class_def = "classes/%s.txt" % label_type
+        _id2class = [c.strip() for c in open(class_def)]
+        _class2id = defaultdict(int)
+        for i, c in enumerate(_id2class):
+            _class2id[c] = i
+        return _id2class, _class2id
+
+    id2class = dotDict()
+    class2id = dotDict()
+    for label_type in label_types:
+        _id2class, _class2id = load_classes_from_definition(label_type)
+        id2class[label_type] = _id2class
+        class2id[label_type] = _class2id
     return id2class, class2id
+
 
 # Not used for now.
 class MultiOutputIterator(object):
