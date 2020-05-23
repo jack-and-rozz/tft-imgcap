@@ -19,7 +19,7 @@ def add_data_args(parser):
     
 def add_model_args(parser):
     parser.add_argument('--cnn-dims', metavar='N', type=int,
-                        default=[32, 32], nargs='+', help=' ')
+                        default=[32, 32, 32], nargs='+', help=' ')
     return parser
 
 def add_train_args(parser):
