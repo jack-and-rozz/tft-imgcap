@@ -81,7 +81,6 @@ def clip_myfield(img):
 
     plotImages(images, x=7, y=3, save_as='clipped_field.png')
     exit(1)
-        
 
 def clip(path):
     img = Image.open(path)

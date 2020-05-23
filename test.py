@@ -8,7 +8,7 @@ from collections import Counter
 
 from tensorflow.keras.models import load_model
 
-from dataset import read_data, read_df
+from dataset import read_df, read_data, load_classes_from_definition
 from model import define_model
 from util import plotImages, dotDict, flatten, get_best_and_final_model_path
 from option import get_test_parser
@@ -65,21 +65,25 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
 
 def main(args):
     sess = tf.InteractiveSession()
-    id2class, class2id = load_classes_from_saved_model(args.model_root)
-    test_df = read_df(args.data_dir + '/test.csv', args.label_type)
+    # id2class, class2id = load_classes_from_saved_model(args.model_root)
+    id2class, class2id = load_classes_from_definition(label_type)
+    test_df = read_df(args.data_dir + '/' + args.test_csv, args.label_types)
 
     n_test = len(test_df)
     test_data = read_data(args.data_dir, test_df, class2id, test_batch_size, 
                           args.img_height, args.img_width, 
-                          y_col=args.label_type,
+                          y_col=args.label_types,
                           shuffle=False)
 
     best_model_path, _ = get_best_and_final_model_path(args.model_root)
     model = load_model(best_model_path)
     output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
-    evaluation(model, output_dir, test_data, id2class, n_test)
+    evaluation(model, output_dir, test_data, id2class[LABEL_TYPE], n_test)
 
 if __name__ == "__main__":
     parser = get_test_parser()
     args = parser.parse_args()
+
+    global LABEL_TYPE
+    LABEL_TYPE = args.label_types[0]
     main(args)

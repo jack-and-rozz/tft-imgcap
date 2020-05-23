@@ -79,13 +79,15 @@ def main(args):
         id2class[label_type] = _id2class
         class2id[label_type] = _class2id
 
-    train_df = read_df(args.data_dir + '/train.csv', args.label_types, class2id)
-    dev_df = read_df(args.data_dir + '/dev.csv', args.label_types, class2id)
-    test_df = read_df(args.data_dir + '/test.csv', args.label_types, class2id)
+    train_df = read_df(args.data_dir + '/' + args.train_csv, args.label_types, 
+                       class2id)
+    dev_df = read_df(args.data_dir + '/' + args.dev_csv, args.label_types, 
+                     class2id)
+    # test_df = read_df(args.data_dir + '/test.csv', args.label_types, class2id)
     
     n_train = len(train_df)
     n_dev = len(dev_df)
-    n_test = len(test_df)
+    # n_test = len(test_df)
 
     # PCACA: https://qiita.com/koshian2/items/78de8ccd09dd2998ddfc
     train_data = read_data(args.data_dir, train_df, class2id, args.batch_size, 
@@ -93,7 +95,8 @@ def main(args):
                            y_col=args.label_types,
                            shuffle=True)
     # for img, lb in train_data:
-    #     print(lb)
+    #     print(img.shape)
+    #     print(lb.shape)
     #     exit(1)
 
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
@@ -101,10 +104,10 @@ def main(args):
                          y_col=args.label_types,
                          shuffle=False)
 
-    test_data = read_data(args.data_dir, test_df, class2id, test_batch_size, 
-                          args.img_height, args.img_width, 
-                          y_col=args.label_types,
-                          shuffle=False)
+    # test_data = read_data(args.data_dir, test_df, class2id, test_batch_size, 
+    #                       args.img_height, args.img_width, 
+    #                       y_col=args.label_types,
+    #                       shuffle=False)
 
     class_weight = {label_type:get_class_weight(args.data_dir + '/train.csv', label_type, class2id) for label_type in args.label_types} # Loss weights to handle imbalance classes.
     input_shape = (args.img_height, args.img_width, 3)
@@ -138,10 +141,9 @@ def main(args):
     loss_weights = {label_type: 1.0 for label_type in args.label_types}
     metrics = {label_type: 'accuracy' for label_type in args.label_types}
 
-
     model.compile(optimizer=opt, loss=loss, loss_weights=loss_weights,
                   metrics=metrics)
-    model.summary()
+    # model.summary()
 
     schedule = fixed_decay_scheduler(args.init_lr, 
                                      decay_rate=args.lr_decay_rate, 
@@ -166,11 +168,14 @@ def main(args):
     best_model_path, _ = get_best_and_final_model_path(args.model_root)
     model = load_model(best_model_path)
     output_dir = args.model_root + '/evaluations'
-    evaluation(model, output_dir, test_data, id2class, n_test)
+    evaluation(model, output_dir, test_data, id2class[LABEL_TYPE], n_test)
 
 if __name__ == "__main__":
     parser = get_train_parser()
     args = parser.parse_args()
+
+    global LABEL_TYPE
+    LABEL_TYPE = args.label_types[0]
     main(args)
 
 # https://www.tensorflow.org/tutorials/images/classification
