@@ -78,8 +78,8 @@ def main(args):
                        class2id)
     dev_df = read_df(args.data_dir + '/' + args.dev_csv, args.label_types, 
                      class2id)
+
     # test_df = read_df(args.data_dir + '/test.csv', args.label_types, class2id)
-    
     n_train = len(train_df)
     n_dev = len(dev_df)
     # n_test = len(test_df)
