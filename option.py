@@ -19,15 +19,17 @@ def add_data_args(parser):
     
 def add_model_args(parser):
     parser.add_argument('--cnn-dims', metavar='N', type=int,
-                        default=[32, 32, 32], nargs='+', help=' ')
+                        default=[64, 64, 32], nargs='+', help=' ')
     return parser
 
 def add_train_args(parser):
     # Training 
-    parser.add_argument('--max-epoch', type=int, default=100, help=' ')
-    parser.add_argument('--batch-size', type=int, default=20, help=' ')
+    parser.add_argument('--max-epoch', type=int, default=200, help=' ')
+    parser.add_argument('--batch-size', type=int, default=80, help=' ')
+    parser.add_argument('--L2reg-factor', type=int, default=0.0, help=' ')
+ 
     parser.add_argument('--init-lr', type=float, default=1e-3, help=' ')
-    parser.add_argument('--final-lr', type=float, default=1e-7, help=' ')
+    parser.add_argument('--final-lr', type=float, default=1e-9, help=' ')
     parser.add_argument('--lr-decay-rate', type=float, default=0.95, 
                         help='Learning rate decay per epoch.')
     parser.add_argument('--dropout-rate', type=float, default=0.25, help=' ')

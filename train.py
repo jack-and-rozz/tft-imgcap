@@ -79,10 +79,10 @@ def main(args):
     dev_df = read_df(args.data_dir + '/' + args.dev_csv, args.label_types, 
                      class2id)
 
-    # test_df = read_df(args.data_dir + '/test.csv', args.label_types, class2id)
+    test_df = read_df(args.data_dir + '/test.csv', args.label_types, class2id)
     n_train = len(train_df)
     n_dev = len(dev_df)
-    # n_test = len(test_df)
+    n_test = len(test_df)
 
     # PCACA: https://qiita.com/koshian2/items/78de8ccd09dd2998ddfc
     train_data = read_data(args.data_dir, train_df, class2id, args.batch_size, 
@@ -99,10 +99,10 @@ def main(args):
                          y_col=args.label_types,
                          shuffle=False)
 
-    # test_data = read_data(args.data_dir, test_df, class2id, test_batch_size, 
-    #                       args.img_height, args.img_width, 
-    #                       y_col=args.label_types,
-    #                       shuffle=False)
+    test_data = read_data(args.data_dir, test_df, class2id, test_batch_size, 
+                          args.img_height, args.img_width, 
+                          y_col=args.label_types,
+                          shuffle=False)
 
     class_weight = {label_type:get_class_weight(args.data_dir + '/train.csv', label_type, class2id) for label_type in args.label_types} # Loss weights to handle imbalance classes.
     input_shape = (args.img_height, args.img_width, 3)
@@ -116,7 +116,9 @@ def main(args):
     else:
         model = define_model(input_shape, output_sizes, 
                              cnn_dims=args.cnn_dims,
+                             L2reg_factor=args.L2reg_factor,
                              dropout_rate=args.dropout_rate)
+        model.summary()
         initial_epoch = 0
     sys.stderr.write('Start training from Epoch %d.\n' % initial_epoch)
 

@@ -14,7 +14,7 @@ from util import plotImages, dotDict, flatten, get_best_and_final_model_path
 from option import get_test_parser
 
 # To display 3x3 images in a test output.
-test_batch_size = 9
+test_batch_size = 16
 
 def load_classes_from_saved_model(model_root):
     id2class = [c.strip() for c in open(model_root + '/classes.txt')]
@@ -57,6 +57,7 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
     is_correct = [1 if hyp == ref else 0 for hyp, ref in zip(all_hypotheses[:n_test], all_references[:n_test])]
     accuracy = float(sum(is_correct)) / len(is_correct)
 
+    print()
     print('Accuracy: %.03f' % accuracy)
     print(file=sys.stderr)
     print("Evaluation results are saved to '%s'." % (output_dir), file=sys.stderr)

@@ -1,6 +1,6 @@
 # coding: utf-8
 import tensorflow as tf
-from tensorflow.keras import datasets, layers, models
+from tensorflow.keras import datasets, layers, models, regularizers
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
 
@@ -8,6 +8,7 @@ from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2
 def define_model(input_shape, output_sizes, 
                  cnn_dims=[32, 32], 
                  dropout_rate=0.1,
+                 L2reg_factor=0.01,
                  activation='relu'):
     '''
     <args>
@@ -17,15 +18,24 @@ def define_model(input_shape, output_sizes,
     '''
 
     def cnn_layer(prev, ndim):
-        conv = layers.Conv2D(ndim, (3, 3), activation=activation)(prev)
+        kernel_regularizer = regularizers.l2(L2reg_factor) if L2reg_factor > 0 else None
+        bias_regularizer = regularizers.l2(L2reg_factor) if L2reg_factor > 0 else None
+        conv = layers.Conv2D(
+            ndim, (3, 3), 
+            use_bias=True,
+            activation=activation,
+            kernel_regularizer=kernel_regularizer,
+            bias_regularizer=bias_regularizer, 
+        )(prev)
         pooling = layers.MaxPooling2D((2, 2))(conv)
         dropout = layers.Dropout(dropout_rate)(pooling)
         return dropout
 
     def output_layer(prev, output_name, output_size, final_activation='softmax'):
-        dense = layers.Dense(64, activation=activation)(prev)
+        dense = layers.Dense(cnn_dims[-1], activation=activation, 
+                             use_bias=True)(prev)
         output = layers.Dense(output_size, activation=final_activation,
-                              name=output_name)(dense)
+                              name=output_name, use_bias=True)(dense)
         return output
 
     inputs = Input(shape = input_shape)
@@ -41,5 +51,4 @@ def define_model(input_shape, output_sizes,
                                     final_activation=final_activation))
 
     model = Model(inputs=inputs, outputs=outputs)
-    model.summary()
     return model
