@@ -25,6 +25,7 @@ whisper
 bramble
 redbuff
 solari
+swordbreaker
 frozen
 veil
 warmog
