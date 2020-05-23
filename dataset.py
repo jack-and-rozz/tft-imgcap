@@ -5,6 +5,7 @@ from collections import defaultdict
 from keras_preprocessing.image import ImageDataGenerator
 import pandas as pd
 import numpy as np
+from util import dotDict
 
 # # Not used for now.
 # class MultiCategoryIterator(object):

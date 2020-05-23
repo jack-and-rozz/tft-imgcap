@@ -72,12 +72,7 @@ def main(args):
     make_model_dirs(args)
     fix_random_seed()
 
-    id2class = dotDict()
-    class2id = dotDict()
-    for label_type in args.label_types:
-        _id2class, _class2id = load_classes_from_definition(label_type)
-        id2class[label_type] = _id2class
-        class2id[label_type] = _class2id
+    id2class, class2id = load_classes_from_definition(args.label_types)
 
     train_df = read_df(args.data_dir + '/' + args.train_csv, args.label_types, 
                        class2id)
