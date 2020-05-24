@@ -14,6 +14,9 @@ python train.py checkpoints/tmp
 
 # evaluation
 python test.py checkpoints/tmp --output-dir=evals
+
+# test with screenshots
+python clip_rawpics.py
 ```
 
 
