@@ -11,7 +11,7 @@ from tensorflow.keras.models import load_model
 from dataset import read_df, read_data, load_classes_from_definition
 from model import define_model
 from util import plotImages, dotDict, flatten, get_best_and_final_model_path
-from option import get_test_parser
+from option import get_test_parser, merge_with_saved_args
 
 # To display 3x3 images in a test output.
 test_batch_size = 16
@@ -84,6 +84,7 @@ def main(args):
 if __name__ == "__main__":
     parser = get_test_parser()
     args = parser.parse_args()
+    args = merge_with_saved_args(args)
 
     global LABEL_TYPE
     LABEL_TYPE = args.label_types[0]

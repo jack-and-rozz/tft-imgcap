@@ -1,5 +1,6 @@
 # coding: utf-8
-import argparse
+import argparse, yaml
+from util import dotDict
 
 def add_common_args(parser):
     parser.add_argument('model_root', help='Directory to save the trained model, evaluation results, etc.')
@@ -59,6 +60,16 @@ def get_train_parser():
 def get_test_parser():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser = add_common_args(parser)
-    parser = add_data_args(parser)
+    # parser = add_data_args(parser)
     parser = add_test_args(parser)
     return parser
+
+
+def merge_with_saved_args(args, config_filename='config.yaml'):
+    saved_args = yaml.load(open(args.model_root + '/' + config_filename))
+    for k, v in args.__dict__.items():
+        saved_args[k] = v
+    return dotDict(saved_args)
+
+
+
