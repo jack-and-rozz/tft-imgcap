@@ -2,14 +2,15 @@
 import tensorflow as tf
 from tensorflow.keras import datasets, layers, models, regularizers
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input, BatchNormalization, Activation
 
 
 def define_model(input_shape, output_sizes, 
                  cnn_dims=[32, 32], 
                  dropout_rate=0.1,
                  L2reg_factor=0.01,
-                 activation='relu'):
+                 activation='relu',
+                 batch_normalization=True):
     '''
     <args>
     - input_shape: A tuple or list, the shape of input tensor (i.e., an image).
@@ -23,10 +24,12 @@ def define_model(input_shape, output_sizes,
         conv = layers.Conv2D(
             ndim, (3, 3), 
             use_bias=True,
-            activation=activation,
             kernel_regularizer=kernel_regularizer,
             bias_regularizer=bias_regularizer, 
         )(prev)
+        if batch_normalization:
+            conv = BatchNormalization()(conv)
+        conv = Activation(activation)(conv)
         pooling = layers.MaxPooling2D((2, 2))(conv)
         dropout = layers.Dropout(dropout_rate)(pooling)
         return dropout

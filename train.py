@@ -117,7 +117,8 @@ def main(args):
         model = define_model(input_shape, output_sizes, 
                              cnn_dims=args.cnn_dims,
                              L2reg_factor=args.L2reg_factor,
-                             dropout_rate=args.dropout_rate)
+                             dropout_rate=args.dropout_rate,
+                             batch_normalization=not args.disable_batch_normalization)
         model.summary()
         initial_epoch = 0
     sys.stderr.write('Start training from Epoch %d.\n' % initial_epoch)

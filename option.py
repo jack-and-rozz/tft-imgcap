@@ -35,6 +35,8 @@ def add_train_args(parser):
     parser.add_argument('--dropout-rate', type=float, default=0.25, help=' ')
     parser.add_argument('--enable-class-weight', action="store_true", 
                         default=False, help=' ')
+    parser.add_argument('--disable-batch-normalization', action="store_true", 
+                        default=False, help=' ')
 
     parser.add_argument('--train-csv', type=str, default='train.csv', help=' ')
     parser.add_argument('--dev-csv', type=str, default='dev.csv', help=' ')
