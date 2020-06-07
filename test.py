@@ -106,13 +106,13 @@ def plot_eval_stat(refs, hyps, class2id, id2class, output_dir):
 
 def main(args):
     # # DEBUG
-    id2class, class2id = load_classes_from_definition(args.label_types)
-    refs = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
-    hyps = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
-    output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
+    # id2class, class2id = load_classes_from_definition(args.label_types)
+    # refs = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
+    # hyps = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
+    # output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
 
-    plot_eval_stat(refs, hyps, class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
-    exit(1)
+    # plot_eval_stat(refs, hyps, class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
+    # exit(1)
     sess = tf.InteractiveSession()
     # id2class, class2id = load_classes_from_saved_model(args.model_root)
     id2class, class2id = load_classes_from_definition(args.label_types)
