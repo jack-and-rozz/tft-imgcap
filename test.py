@@ -87,6 +87,8 @@ def plot_eval_stat(refs, hyps, class2id, id2class, output_dir):
         sns.heatmap(cm, xticklabels=id2class, yticklabels=id2class, 
                     cmap="YlGnBu", annot=annot, vmin=0., vmax=1.)
         # sns.heatmap(cm, xticklabels=1, yticklabels=1, cmap="RdBu_r", annot=True)
+        plt.xlabel('Hypothesis')
+        plt.ylabel('Reference')
         plt.savefig(output_dir + '/cm.pdf')
         # plt.show()
 
