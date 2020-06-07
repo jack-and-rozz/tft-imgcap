@@ -2,7 +2,9 @@
 import tensorflow as tf
 from tensorflow.keras import datasets, layers, models, regularizers
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input, BatchNormalization, Activation
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input, BatchNormalization, Activation, LeakyReLU
+import tensorflow.keras.layers as layers
+
 
 
 def define_model(input_shape, output_sizes, 
@@ -18,6 +20,15 @@ def define_model(input_shape, output_sizes,
     - cnn_dims: The numbers of dimensions in each CNN layer. CNN is applied as many times as the length of cnn_dims.
     '''
 
+    def _activation(x, activation):
+        simple_activations = ['tanh', 'sigmoid', 'relu', 'elu', 'selu', 'softplus', 'softsign', 'hard_sigmoid', 'linear']
+        if activation in simple_activations:
+            x = Activation(activation)(x)
+        else:
+            activation_class = getattr(layers, activation)
+            x = activation_class()(x)
+        return x
+
     def cnn_layer(prev, ndim):
         kernel_regularizer = regularizers.l2(L2reg_factor) if L2reg_factor > 0 else None
         bias_regularizer = regularizers.l2(L2reg_factor) if L2reg_factor > 0 else None
@@ -29,14 +40,16 @@ def define_model(input_shape, output_sizes,
         )(prev)
         if batch_normalization:
             conv = BatchNormalization()(conv)
-        conv = Activation(activation)(conv)
+
+        conv = _activation(conv, activation)
+
         pooling = layers.MaxPooling2D((2, 2))(conv)
         dropout = layers.Dropout(dropout_rate)(pooling)
         return dropout
 
     def output_layer(prev, output_name, output_size, final_activation='softmax'):
-        dense = layers.Dense(cnn_dims[-1], activation=activation, 
-                             use_bias=True)(prev)
+        dense = layers.Dense(cnn_dims[-1], use_bias=True)(prev)
+        dense = _activation(dense, activation)
         output = layers.Dense(output_size, activation=final_activation,
                               name=output_name, use_bias=True)(dense)
         return output

@@ -41,11 +41,13 @@ datasets
 ```
 
 
-## Annotation
+## Building TFT-dataset
 
+### Annotation to screenshots
 動画のキャプチャに対して LabelImg (https://github.com/tzutalin/labelImg) を用いて行う．
 labelImg/data/predefined_classes.txt を同プロジェクト内のpredefined_classes.txtで上書きするとアノテーションの際ラベルがサジェストされます．
 width:80, height: 100くらいの画像をcreateRectBoxから切り抜いてタグ付け．タグのフォーマットは後述．
+
 
 ```
 git clone https://github.com/tzutalin/labelImg
@@ -55,7 +57,7 @@ cd labelImg
 python labelImg.py
 ```
 
-## Tags
+### Annotation guide
 フォーマットは[チャンピオン名*星: アイテムのリスト]．アイテムがない場合，星1の場合はそれぞれ省略．
 例) 
 - 
@@ -66,13 +68,20 @@ python labelImg.py
 - 盗賊のグローブをつけている場合はそこから出てきたアイテムも記入 = leona: IE, GA, thiefsglove
 
 
-
-## Dataset creation from annotated data
+### Clipping from annotated screenshots
 ```
-# Suppose we have images and annotation xml files in 'datasets/rawpics/{image}.[png,jpg|xml]', and save the clipped file to 'datasets/clipped'.
+# Suppose we have images and annotation xml files in 'datasets/annoteted_data/**/{image}.[png,jpg|xml]'.
+# Clipped images are saved to 'datasets/clipped' by the following command.
+
 python scripts/clip_annotated_pics.py \
        --data-dir datasets/annotated_pics \
        --save-dir datasets/clipped
+```
+
+
+### Count and summarize the number of each champion's clips
+```
+python scripts/count_clips.py
 ```
 
 

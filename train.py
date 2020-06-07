@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from tensorflow.keras import datasets, layers, models
 from tensorflow.keras.models import Sequential, Model, load_model
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
+# from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras.utils import to_categorical
@@ -118,6 +118,7 @@ def main(args):
                              cnn_dims=args.cnn_dims,
                              L2reg_factor=args.L2reg_factor,
                              dropout_rate=args.dropout_rate,
+                             activation=args.activation_func,
                              batch_normalization=not args.disable_batch_normalization)
         model.summary()
         initial_epoch = 0
