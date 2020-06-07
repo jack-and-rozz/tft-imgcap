@@ -10,10 +10,10 @@ ln -sf {dataset_path} datasets # Images and annotations are managed in Dropbox.
 ## How to use
 ```
 # training
-python train.py checkpoints/tmp
+python train.py checkpoints/tmp --label-types=championg
 
 # evaluation
-python test.py checkpoints/tmp --output-dir=evals
+python test.py checkpoints/tmp --output-dir=evals --label-types=championg
 
 # test with screenshots
 python clip_rawpics.py
@@ -57,9 +57,11 @@ python labelImg.py
 ## Tags
 フォーマットは[チャンピオン名*星: アイテムのリスト]．アイテムがない場合，星1の場合はそれぞれ省略．
 例) 
+- 
 - レオナ星1アイテムなし = leona
 - グレイブス星2にGA,BFがついている場合 = graves*2: GA, BF
-- アイテム置き場に涙とBF = items:tear, BF
+- アイテム置き場に涙 = items:tear
+  * 複数ある場合はとりあえず別々に付けることにする (2020/06/07)
 - 盗賊のグローブをつけている場合はそこから出てきたアイテムも記入 = leona: IE, GA, thiefsglove
 
 labelImg/data/predefined_classes.txt を同プロジェクト内のpredefined_classes.txtで上書きするとアノテーションの際ラベルがサジェストされます．

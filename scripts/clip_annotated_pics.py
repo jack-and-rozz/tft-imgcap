@@ -44,12 +44,17 @@ def clip(entire_img, xml, champ_counts):
         xmin, ymin, xmax, ymax = bndbox
         img = entire_img[ymin:ymax, xmin:xmax]
         champion, star, items = parse_label(label)
+
+        if champion not in champ_counts:
+            continue
+
         target_file = "%s.%d.png" % (champion, champ_counts[champion])
         target_path = args.save_dir + '/' + target_file
-        champ_counts[champion] += 1
 
-        if champion == 'items':
-            continue
+        # if champion == 'items':
+        #     continue
+
+        champ_counts[champion] += 1
 
         l = [target_file, source_file, champion, '*%d' % star] + items[:3]
         data.append(l)
@@ -96,13 +101,20 @@ def read_empty_fields(data_dir):
         data.append(d)
     return data
 
+def read_class_definition(path):
+    return set([l.strip() for l in open(path)])
+
 def main(args):
     os.makedirs(args.save_dir, exist_ok=True)
-    champ_counts = defaultdict(int)
-    data = []
-    data += read_empty_fields(args.empty_clips_dir)
 
-    xml_paths = glob.glob(args.data_dir + '/*/*.xml')
+    valid_classes = read_class_definition(args.class_definition)
+    # champ_counts = defaultdict(int)
+    champ_counts = {c:0 for c in valid_classes}
+
+    xml_paths = glob.glob(args.data_dir + '/**/*.xml', recursive=True)
+
+    data = []
+    data += read_empty_fields(args.empty_clips_dir) # rename empty clips
     pbar = tqdm(total=len(xml_paths))
     for xml_path in xml_paths:
         img_path = '.'.join(xml_path.split('.')[:-1]) + '.jpg' 
@@ -133,13 +145,15 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data-dir', default='datasets/annotated_pics')
-    parser.add_argument('--empty-clips-dir', default='datasets/emptys', 
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--data-dir', default='datasets/annotated_pics', help=' ')
+    parser.add_argument('--empty-clips-dir', default='datasets/emptys',
                         help='Clips containing no champions, prepared separately from annotated pics.')
-    parser.add_argument('--save-dir', default='datasets/clipped')
-    parser.add_argument('--dev_rate', type=float, default=0.05)
-    parser.add_argument('--test_rate', type=float, default=0.05)
+    parser.add_argument('--save-dir', default='datasets/clipped', help=' ')
+    parser.add_argument('--dev_rate', type=float, default=0.05, help=' ')
+    parser.add_argument('--test_rate', type=float, default=0.05, help=' ')
+    parser.add_argument('--class_definition', default='classes/champion.txt', 
+                        help=' ')
     args = parser.parse_args()
     main(args)
 
