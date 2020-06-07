@@ -134,6 +134,7 @@ viktor
 janna
 urgot
 battlecast
+bluebuff
 
 <level>
 1

@@ -12,6 +12,7 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 from util import plotImages
 
+
 EMPTY = '-'
 
 def parse_label(label):
@@ -20,6 +21,7 @@ def parse_label(label):
     '''
     label = label.split(':')
     items = [x.strip() for x in label[1].split(',')] if len(label) > 1 else []
+    items = [item if len(items) > i else EMPTY for i in range(3)]
 
     if label[0]:
         champion = label[0].split('*')
@@ -37,6 +39,10 @@ def clip(entire_img, xml, champ_counts):
     # Record:  [target_file, source_file,]
     source_file = xml.getroot().find('filename').text
     objects = xml.getroot().findall('object')
+    size = xml.getroot().find('size')
+    whole_width = float(size.find('width').text)
+    whole_height = float(size.find('height').text)
+
     data = []
     for obj in objects:
         label = obj.find('name').text
@@ -57,6 +63,8 @@ def clip(entire_img, xml, champ_counts):
         champ_counts[champion] += 1
 
         l = [target_file, source_file, champion, '*%d' % star] + items[:3]
+        l += [xmin/whole_width, ymin/whole_height, 
+              xmax/whole_width, ymax/whole_height]
         data.append(l)
 
         Image.fromarray(img).save(target_path)
@@ -64,9 +72,8 @@ def clip(entire_img, xml, champ_counts):
 
 
 def create_dataframe(data):
-    # columns = ['clipped', 'original', 'labels']
-    # columns = ['clipped', 'original', 'champion', 'star', 'item']
     columns = ['clipped', 'original', 'champion', 'star', 'item1', 'item2', 'item3']
+    columns += ['n_xmin', 'n_ymin', 'n_xmax', 'n_ymax']
     df = pd.DataFrame(data, columns=columns).set_index('clipped')
     return df
 
@@ -96,7 +103,7 @@ def read_empty_fields(data_dir):
         tgt_filename = 'empty.%d.png' % i
         src_path = '../' + empty_dirname + '/' + src_filename
         tgt_path = args.save_dir + '/' + tgt_filename
-        d = [tgt_filename, src_filename, EMPTY, '*0', []]
+        d = [tgt_filename, src_filename, EMPTY, '*0', EMPTY, EMPTY, EMPTY]
         os.system('ln -sf %s %s' % (src_path, tgt_path))
         data.append(d)
     return data
@@ -145,6 +152,7 @@ def main(args):
 
 
 if __name__ == "__main__":
+    random.seed(0)
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--data-dir', default='datasets/annotated_pics', help=' ')
     parser.add_argument('--empty-clips-dir', default='datasets/emptys',
