@@ -13,6 +13,11 @@ from model import define_model
 from util import plotImages, dotDict, flatten, get_best_and_final_model_path
 from option import get_test_parser, merge_with_saved_args
 
+# for analysis
+import matplotlib.pyplot as plt
+import seaborn as sns
+# from sklearn.metrics import confusion_matrix
+
 # To display 3x3 images in a test output.
 test_batch_size = 16
 
@@ -62,9 +67,70 @@ def evaluation(model, output_dir, test_data, id2class, n_test=None):
     print(file=sys.stderr)
     print("Evaluation results are saved to '%s'." % (output_dir), file=sys.stderr)
 
+    return all_references, all_hypotheses
 
+
+def confusion_matrix(refs, hyps, class2id):
+    matrix = np.zeros((len(class2id), len(class2id)))
+    for r, h in zip(refs, hyps):
+        matrix[class2id[r]][class2id[h]] += 1
+    matrix /= (np.sum(matrix, axis=1, keepdims=True) + 1e-9)
+    return matrix
+
+
+def plot_eval_stat(refs, hyps, class2id, id2class, output_dir):
+
+    with sns.axes_style("darkgrid"):
+        plt.subplots(figsize=(10,8), tight_layout=True)
+        cm = confusion_matrix(refs, hyps, class2id)
+        annot = False
+        sns.heatmap(cm, xticklabels=id2class, yticklabels=id2class, 
+                    cmap="YlGnBu", annot=annot, vmin=0., vmax=1.)
+        # sns.heatmap(cm, xticklabels=1, yticklabels=1, cmap="RdBu_r", annot=True)
+        plt.savefig(output_dir + '/cm.pdf')
+        # plt.show()
+  
+
+
+    # tp = np.array([0 for _ in class2id])
+    # fp = np.array([0 for _ in class2id])
+
+    # for i in range(len(refs)):
+    #     class_idx = class2id[hyps[i]]
+    #     if refs[i] == hyps[i]:
+    #         tp[class_idx] += 1
+    #     else:
+    #         fp[class_idx] += 1
+
+            
+    # y = id2class
+    # x1 = tp
+    # x2 = fp
+    
+
+    # with sns.axes_style("darkgrid"):
+    #     # fig, axes = plt.subplots(ncols=2, sharey='all', figsize=(20, 8))
+    #     fig, axes = plt.subplots(1, 1, figsize=(5, 10), tight_layout=True)
+    #     plt.subplots_adjust(wspace=0.2, hspace=0.2)
+  
+    #     # ax = axes[0][0]
+    #     ax = axes
+    #     ax.barh(y, x1)
+    #     ax.barh(y, x2, left=x1)
+    #     ax.tick_params(labelrotation=0)
+    #     ax.legend(['TP', 'FP'], loc='lower right')
+
+    #     plt.show()
 
 def main(args):
+    # # DEBUG
+    # id2class, class2id = load_classes_from_definition(args.label_types)
+    # refs = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
+    # hyps = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
+    # output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
+
+    # plot_eval_stat(refs, hyps, class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
+    # exit(1)
     sess = tf.InteractiveSession()
     # id2class, class2id = load_classes_from_saved_model(args.model_root)
     id2class, class2id = load_classes_from_definition(args.label_types)
@@ -79,8 +145,10 @@ def main(args):
     best_model_path, _ = get_best_and_final_model_path(args.model_root)
     model = load_model(best_model_path)
     output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
-    evaluation(model, output_dir, test_data, id2class[LABEL_TYPE], n_test)
-
+    refs, hyps = evaluation(model, output_dir, test_data, 
+                            id2class[LABEL_TYPE], n_test)
+    plot_eval_stat(refs, hyps, class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
+    
 if __name__ == "__main__":
     parser = get_test_parser()
     args = parser.parse_args()
