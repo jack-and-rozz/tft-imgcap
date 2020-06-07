@@ -89,24 +89,6 @@ def plot_eval_stat(refs, hyps, class2id, id2class, output_dir):
         # sns.heatmap(cm, xticklabels=1, yticklabels=1, cmap="RdBu_r", annot=True)
         plt.savefig(output_dir + '/cm.pdf')
         # plt.show()
-  
-
-
-    # tp = np.array([0 for _ in class2id])
-    # fp = np.array([0 for _ in class2id])
-
-    # for i in range(len(refs)):
-    #     class_idx = class2id[hyps[i]]
-    #     if refs[i] == hyps[i]:
-    #         tp[class_idx] += 1
-    #     else:
-    #         fp[class_idx] += 1
-
-            
-    # y = id2class
-    # x1 = tp
-    # x2 = fp
-    
 
     # with sns.axes_style("darkgrid"):
     #     # fig, axes = plt.subplots(ncols=2, sharey='all', figsize=(20, 8))
@@ -124,13 +106,13 @@ def plot_eval_stat(refs, hyps, class2id, id2class, output_dir):
 
 def main(args):
     # # DEBUG
-    # id2class, class2id = load_classes_from_definition(args.label_types)
-    # refs = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
-    # hyps = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
-    # output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
+    id2class, class2id = load_classes_from_definition(args.label_types)
+    refs = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
+    hyps = [id2class[LABEL_TYPE][random.randint(0, 30)] for i in range(100)]
+    output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
 
-    # plot_eval_stat(refs, hyps, class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
-    # exit(1)
+    plot_eval_stat(refs, hyps, class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
+    exit(1)
     sess = tf.InteractiveSession()
     # id2class, class2id = load_classes_from_saved_model(args.model_root)
     id2class, class2id = load_classes_from_definition(args.label_types)
