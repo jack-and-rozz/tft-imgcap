@@ -32,17 +32,18 @@ def define_model(input_shape, output_sizes,
     def cnn_layer(prev, ndim):
         kernel_regularizer = regularizers.l2(L2reg_factor) if L2reg_factor > 0 else None
         bias_regularizer = regularizers.l2(L2reg_factor) if L2reg_factor > 0 else None
+
         conv = layers.Conv2D(
             ndim, (3, 3), 
             use_bias=True,
+            # padding='valid',
+            padding='same',
             kernel_regularizer=kernel_regularizer,
             bias_regularizer=bias_regularizer, 
         )(prev)
         if batch_normalization:
             conv = BatchNormalization()(conv)
-
         conv = _activation(conv, activation)
-
         pooling = layers.MaxPooling2D((2, 2))(conv)
         dropout = layers.Dropout(dropout_rate)(pooling)
         return dropout
@@ -55,7 +56,7 @@ def define_model(input_shape, output_sizes,
         return output
 
     # Network definitiaion
-    inputs = Input(shape = input_shape)
+    inputs = Input(shape=input_shape)
     hidden = inputs
     for ndim in cnn_dims:
         hidden = cnn_layer(hidden, ndim)
