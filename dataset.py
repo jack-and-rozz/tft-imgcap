@@ -52,7 +52,7 @@ def load_classes_from_definition(label_types):
     def _load_classes_from_definition(label_type):
         class_def = "classes/%s.txt" % label_type
         _id2class = [c.strip() for c in open(class_def)]
-        _class2id = defaultdict(int)
+        _class2id = defaultdict(lambda: 0)
         for i, c in enumerate(_id2class):
             _class2id[c] = i
         return _id2class, _class2id
@@ -73,6 +73,7 @@ class MultiOutputIterator(object):
         self.class2id = classes
         self.id2class = [tok for tok in classes]
         self.y_cols = y_cols
+        # self.f = open('aaa.log', 'w') # debug
 
     def __iter__(self):
         return self
@@ -90,6 +91,8 @@ class MultiOutputIterator(object):
             # print(self.class2id[self.y_cols[i]])
             # print(labels[i])
             # print(set(labels[i]) - set(self.class2id[self.y_cols[i]].keys()))
+            #print(set(labels[i]) - set(self.class2id[self.y_cols[i]].keys()), file=self.f)
+
             indice = np.vectorize(self.class2id[self.y_cols[i]].get)(labels[i])
             label_indice.append(indice)
         return data, label_indice
