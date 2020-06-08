@@ -46,7 +46,6 @@ datasets
 │       ├── 2020-06-08-21-14-48
 │       │   ├── 2020-06-08-21-14-48_prediction.png # Prediction result.
 │       │   │
-
 ```
 
 
