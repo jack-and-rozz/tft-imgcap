@@ -24,7 +24,8 @@ def add_model_args(parser):
     parser.add_argument('--activation-func', type=str, 
                         default='LeakyReLU',
                         # choices=['tanh', 'relu', 'leakyrelu'], 
-                        choices=['tanh', 'relu', 'ReLU', 'LeakyReLU'], 
+                        choices=['sigmoid', 'tanh', 'relu', 'ReLU', 
+                                 'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU'], 
                         help=' ')
     parser.add_argument('--disable-batch-normalization', action="store_true", 
                         default=False, help=' ')

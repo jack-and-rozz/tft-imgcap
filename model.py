@@ -7,6 +7,7 @@ import tensorflow.keras.layers as layers
 
 
 
+simple_activations = ['tanh', 'sigmoid', 'relu', 'elu', 'selu', 'softplus', 'softsign', 'hard_sigmoid', 'linear']
 def define_model(input_shape, output_sizes, 
                  cnn_dims=[32, 32], 
                  dropout_rate=0.1,
@@ -21,7 +22,6 @@ def define_model(input_shape, output_sizes,
     '''
 
     def _activation(x, activation):
-        simple_activations = ['tanh', 'sigmoid', 'relu', 'elu', 'selu', 'softplus', 'softsign', 'hard_sigmoid', 'linear']
         if activation in simple_activations:
             x = Activation(activation)(x)
         else:
@@ -54,6 +54,7 @@ def define_model(input_shape, output_sizes,
                               name=output_name, use_bias=True)(dense)
         return output
 
+    # Network definitiaion
     inputs = Input(shape = input_shape)
     hidden = inputs
     for ndim in cnn_dims:

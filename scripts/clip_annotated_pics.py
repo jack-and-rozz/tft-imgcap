@@ -156,7 +156,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--data-dir', default='datasets/annotated_pics', help=' ')
     parser.add_argument('--empty-clips-dir', default='datasets/emptys',
-                        help='Clips containing no champions, prepared separately from annotated pics.')
+                        help='Clips containing no champions, prepared separately from annotatations by labelImg.')
     parser.add_argument('--save-dir', default='datasets/clipped', help=' ')
     parser.add_argument('--dev_rate', type=float, default=0.05, help=' ')
     parser.add_argument('--test_rate', type=float, default=0.05, help=' ')

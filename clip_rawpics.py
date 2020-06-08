@@ -157,13 +157,14 @@ def generate_estimate_image(movie_dir, model):
         if y % 2 == 0:
             x_offset = 0
 
-        im1 = Image.open('./images/champions/' + hypotheses[0] + '.png')
+        im1 = Image.open(args.icon_dir + '/champions/' + hypotheses[0] + '.png')
+        im1 = im1.resize((64, 64))
         im.paste(im1, (x_offset + field_left + x * 80, field_top + y * 80))
 
-        im1 = Image.open('./images/champions/' + hypotheses[1] + '.png')
+        im1 = Image.open(args.icon_dir + '/champions/' + hypotheses[1] + '.png')
         im1 = im1.resize((30, 30))
         im.paste(im1, (x_offset + field_left + x * 80, field_top + y * 80 + 40))
-        im1 = Image.open('./images/champions/' + hypotheses[2] + '.png')
+        im1 = Image.open(args.icon_dir + '/champions/' + hypotheses[2] + '.png')
         im1 = im1.resize((20, 20))
         im.paste(im1, (x_offset + field_left + x * 80 + 30, field_top + y * 80 + 50))
 
@@ -192,13 +193,14 @@ def generate_estimate_image(movie_dir, model):
 
         x = int(result.group(1))
 
-        im1 = Image.open('./images/champions/' + hypotheses[0] + '.png')
+        im1 = Image.open(args.icon_dir + '/champions/' + hypotheses[0] + '.png')
+        im1 = im1.resize((64, 64))
         im.paste(im1, (bench_left + x * 80, bench_top))
 
-        im1 = Image.open('./images/champions/' + hypotheses[1] + '.png')
+        im1 = Image.open(args.icon_dir + '/champions/' + hypotheses[1] + '.png')
         im1 = im1.resize((30, 30))
         im.paste(im1, (bench_left + x * 80, bench_top + 40))
-        im1 = Image.open('./images/champions/' + hypotheses[2] + '.png')
+        im1 = Image.open(args.icon_dir + '/champions/' + hypotheses[2] + '.png')
         im1 = im1.resize((20, 20))
         im.paste(im1, (bench_left + x * 80 + 30, bench_top + 50))
 
@@ -206,7 +208,7 @@ def generate_estimate_image(movie_dir, model):
         draw.text((bench_left + x * 80, bench_top), str(outputs_all[0][outputs][0][0]), (255, 255, 255))
 
         img_ref = img.resize((60, 75))
-        im.paste(img_ref, ( 730 + bench_left + x * 80, bench_top))
+        im.paste(img_ref, (730 + bench_left + x * 80, bench_top))
 
     # ref_image_width = 2876
     # ref_image_height = 1606
@@ -221,31 +223,32 @@ def generate_estimate_image(movie_dir, model):
 
     #     im.paste(im_source, (750, 0))
 
-    im.save(movie_dir + "/estimate_result.png")
+    im.save(movie_dir + "/" + os.path.basename(movie_dir) + '_prediction.png')
 
 
 def main(args):
-    for path in glob.glob(args.data_dir + '/*'):
+    for path in glob.glob(args.data_dir + '/**', recursive=True):
+        if os.path.isdir(path):
+            continue
         print(path)
         clip(path)
 
-    
     # estimate image
-    best_model_path, _ = get_best_and_final_model_path("checkpoints/tmp")
+    best_model_path, _ = get_best_and_final_model_path(args.model_root)
     model = load_model(best_model_path)
 
-    for movie_dir in glob.glob(args.save_dir + '/*'):
+    for movie_dir in glob.glob(args.save_dir + '/*' ,recursive=True):
         if not os.path.isdir(movie_dir):
+            print(movie_dir)
             continue
         generate_estimate_image(movie_dir, model)
-    
-        
-
 
 
 if __name__ == "__main__":
       parser = argparse.ArgumentParser()
-      parser.add_argument('--data-dir', default='./raw/rawpics')
-      parser.add_argument('--save-dir', default='./raw/clipped_raw')
+      parser.add_argument('model_root')
+      parser.add_argument('--icon-dir', default='icons/set3-mid/')
+      parser.add_argument('--data-dir', default='datasets/tests/rawpics')
+      parser.add_argument('--save-dir', default='datasets/tests/clipped_raw')
       args = parser.parse_args()
       main(args)

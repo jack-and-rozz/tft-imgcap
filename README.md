@@ -9,14 +9,14 @@ ln -sf {dataset_path} datasets # Images and annotations are managed in Dropbox.
 
 ## How to use
 ```
-# training
+# Training
 python train.py checkpoints/tmp --label-types=champion
 
-# evaluation
+# Evaluation with annotated test set
 python test.py checkpoints/tmp --output-dir=evals
 
-# test with screenshots
-python clip_rawpics.py
+# End-to-end testing with a raw screen shot
+python clip_rawpics.py checkpoints/tmp
 ```
 
 
@@ -85,3 +85,10 @@ python scripts/count_clips.py
 ```
 
 
+
+
+
+
+
+## Memo
+アイコンの中身は https://developer.riotgames.com/docs/tft#static-data からダウンロード
