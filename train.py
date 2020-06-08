@@ -127,7 +127,7 @@ def main(args):
     # Multi-output にするなら自分でスケジューリングしてkeras.train_on_batchを使ったほうがいい？
     # https://www.pyimagesearch.com/2018/12/24/how-to-use-keras-fit-and-fit_generator-a-hands-on-tutorial/
     modelCheckpoint = ModelCheckpoint(
-        filepath = args.model_root + '/checkpoints/ckpt.{epoch:02d}-{val_loss:.2f}.hdf5',
+        filepath = args.model_root + '/checkpoints/ckpt.{epoch:03d}-{val_loss:.4f}.hdf5',
         monitor='val_loss',
         verbose=1,
         save_best_only=False,
