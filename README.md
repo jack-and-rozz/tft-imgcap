@@ -99,4 +99,5 @@ python scripts/count_clips.py
 
 
 ## Memo
-アイコンの中身は https://developer.riotgames.com/docs/tft#static-data からダウンロード
+icons: https://developer.riotgames.com/docs/tft#static-data 
+arenas: https://leagueoflegends.fandom.com/wiki/Arena_(Teamfight_Tactics)

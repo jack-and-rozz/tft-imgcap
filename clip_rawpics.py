@@ -228,21 +228,33 @@ def generate_prediction_image(output_dir, model):
 
 
 def main(args):
-    for path in glob.glob(args.input_root + '/**', recursive=True):
+    for path in glob.glob(args.input_root + '/**/*.png', recursive=True):
         if os.path.isdir(path):
             continue
         print(path)
+
+
+        basename_without_ext = os.path.splitext(os.path.basename(path))[0]
+        output_dir = args.output_root + "/" + basename_without_ext
+        if (not args.overwrite) and os.path.exists(output_dir):
+            continue
+
         clip(path)
 
     # predict champions to clipped screenshots
     best_model_path, _ = get_best_and_final_model_path(args.model_root)
     model = load_model(best_model_path)
 
-    for output_dir in glob.glob(args.output_root + '/*' ,recursive=True):
+    for output_dir in glob.glob(args.output_root + '/*'):
         if not os.path.isdir(output_dir):
             print(output_dir)
             continue
-        generate_predict_image(output_dir, model)
+        output_path = output_dir + '/' + os.path.basename(output_dir) + '_prediction.png'
+        print(output_path)
+        if (not args.overwrite) and os.path.exists(output_path):
+            continue
+
+        generate_prediction_image(output_dir, model)
 
 
 if __name__ == "__main__":
@@ -251,5 +263,6 @@ if __name__ == "__main__":
       parser.add_argument('--icon-dir', default='icons/set3-mid/')
       parser.add_argument('--input-root', default='datasets/tests/rawpics')
       parser.add_argument('--output-root', default='datasets/tests/clipped_raw')
+      parser.add_argument('--overwrite', default=False, action='store_true')
       args = parser.parse_args()
       main(args)
