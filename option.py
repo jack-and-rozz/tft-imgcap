@@ -22,7 +22,7 @@ def add_model_args(parser):
     parser.add_argument('-cnn', '--cnn-dims', metavar='N', type=int,
                         default=[64, 64, 32], nargs='+', help=' ')
     parser.add_argument('--activation-func', type=str, 
-                        default='LeakyReLU',
+                        default='PReLU',
                         # choices=['tanh', 'relu', 'leakyrelu'], 
                         choices=['sigmoid', 'tanh', 'relu', 'ReLU', 
                                  'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU'], 

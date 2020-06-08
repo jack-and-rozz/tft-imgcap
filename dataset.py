@@ -3,6 +3,7 @@
 import os
 from collections import defaultdict
 from keras_preprocessing.image import ImageDataGenerator
+from keras_preprocessing.image.dataframe_iterator import DataFrameIterator
 import pandas as pd
 import numpy as np
 from util import dotDict
@@ -65,33 +66,33 @@ def load_classes_from_definition(label_types):
     return id2class, class2id
 
 
-# Not used for now.
+# # Not used for now.
 class MultiOutputIterator(object):
-    def __init__(self, data_gen, classes):
+    def __init__(self, data_gen, classes, y_cols):
         self._data_gen = data_gen
         self.class2id = classes
         self.id2class = [tok for tok in classes]
+        self.y_cols = y_cols
+
     def __iter__(self):
         return self
 
     def __getattr__(self, name):
-        return self._data_gen.__getattr__(name)
+        # return self._data_gen.__getattr__(name)
+        return getattr(self._data_gen, name)
 
     def __next__(self):
         data, labels = self._data_gen.__next__()
-        # for c in labels
-        print(labels)
-        labels = [self._data_gen.class_indices[c] for c in labels]
-        print(labels)
-        exit(1)
-        # labels = [for]
+        assert len(labels) == len(self.y_cols)
+        label_indice = []
         for i in range(len(labels)):
-            print(labels[i])
-
-            # labels[i] = np.array([self.class_list[i][label] for label in labels[i]], dtype=np.int32)
-        # print(labels)
-        # exit(1)
-        return data, labels
+            # print(self.y_cols[i])
+            # print(self.class2id[self.y_cols[i]])
+            # print(labels[i])
+            # print(set(labels[i]) - set(self.class2id[self.y_cols[i]].keys()))
+            indice = np.vectorize(self.class2id[self.y_cols[i]].get)(labels[i])
+            label_indice.append(indice)
+        return data, label_indice
 
 
 def read_data(data_dir, df, classes, batch_size, img_height, img_width, 
@@ -110,16 +111,16 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
     data_dir = os.getcwd() + '/' + data_dir
 
     ### DEBUG: single output
-    class_mode = 'sparse'    
-    classes = classes[y_col[0]]
-    y_col = y_col[0]
+    # class_mode = 'sparse'    
+    # classes = classes[y_col[0]]
+    # y_col = y_col[0]
     ###### ### ### ### ### 
 
 
     ### DEBUG: multi output
-    # class_mode = 'multi_output'
-    # if type(y_col) != list:
-    #     y_col=[y_col]
+    class_mode = 'multi_output'
+    if type(y_col) != list:
+        y_col=[y_col]
     ########################
 
     _data_gen = image_generator.flow_from_dataframe(
@@ -134,6 +135,22 @@ def read_data(data_dir, df, classes, batch_size, img_height, img_width,
         seed=seed,
     )
     data_gen = _data_gen
+    # # print(data_gen.__class__)
+    # # exit(1)
+    # data_gen.__next__ = lambda : 1
+    # print(data_gen.next())
+    # print(next(data_gen))
+    # # print(dir(data_gen))
+    # # print(type(data_gen))
+    # print(data_gen.shape)
+    # exit(1)
+    data_gen = MultiOutputIterator(_data_gen, classes, y_col)
+
+    # keras_preprocessing requires this wrapper to convert the iterator to a generator for some reason?
+    # https://github.com/keras-team/keras-preprocessing/issues/212
+    def wrapper_gen(x): 
+        yield from x
+    data_gen = wrapper_gen(data_gen)
     return data_gen 
 
 # When using only one label as the target.

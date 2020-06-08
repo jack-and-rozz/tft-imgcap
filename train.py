@@ -91,7 +91,8 @@ def main(args):
                            shuffle=True)
     # for img, lb in train_data:
     #     print(img.shape)
-    #     print(lb.shape)
+    #     print(lb)
+    #     print(type(train_data))
     #     exit(1)
 
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
@@ -139,7 +140,7 @@ def main(args):
 
     opt = Adam(lr=args.init_lr)
     loss = {label_type: 'sparse_categorical_crossentropy' for label_type in args.label_types}
-    loss_weights = {label_type: 1.0 for label_type in args.label_types}
+    loss_weights = {label_type: 1.0 if label_type == 'champion' else 0.2 for label_type in args.label_types}
     metrics = {label_type: 'accuracy' for label_type in args.label_types}
 
     model.compile(optimizer=opt, loss=loss, loss_weights=loss_weights,
