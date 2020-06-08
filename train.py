@@ -120,6 +120,8 @@ def main(args):
                              dropout_rate=args.dropout_rate,
                              activation=args.activation_func,
                              batch_normalization=not args.disable_batch_normalization)
+        with open(args.model_root + '/archtecture.txt', 'w') as f:
+            print(model.summary(), file=f)
         model.summary()
         initial_epoch = 0
     sys.stderr.write('Start training from Epoch %d.\n' % initial_epoch)
