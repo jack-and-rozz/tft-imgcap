@@ -3,7 +3,7 @@ import os, sys, glob, math, subprocess, re
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import chain
-
+import yaml
 
 class dotDict(dict):
   __getattr__ = dict.__getitem__
@@ -87,3 +87,7 @@ def get_best_and_final_model_path(model_root):
     final_model_path = val_losses[0][-1]
     return best_model_path, final_model_path
 
+
+def load_model_config(model_root, config_filename='config.yaml'):
+    saved_args = yaml.load(open(model_root + '/' + config_filename))
+    return dotDict(saved_args)

@@ -14,8 +14,8 @@ def add_data_args(parser):
                         help=' ')
     parser.add_argument('--data-dir', default='datasets/clipped', 
                         help='Directory to store csv files of labels and images clipped from annotated screen shots.')
-    parser.add_argument('--img-height', type=int, default=100, help=' ')
     parser.add_argument('--img-width', type=int, default=80, help=' ')
+    parser.add_argument('--img-height', type=int, default=100, help=' ')
     return parser
 
 def add_model_args(parser):

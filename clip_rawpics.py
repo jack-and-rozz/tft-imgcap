@@ -9,7 +9,7 @@ from tensorflow.keras.models import load_model
 import re
 from dataset import load_classes_from_definition
 
-from util import get_best_and_final_model_path, dotDict
+from util import get_best_and_final_model_path, dotDict, load_model_config
 
 # https://github.com/tzutalin/labelImg
 
@@ -121,7 +121,7 @@ def clip(path):
     clip_myfield(img, output_dir)
     clip_bench(img, output_dir)
 
-def generate_prediction_image(output_dir, model):
+def generate_prediction_image(output_dir, model, model_img_width, model_img_height):
     '''
     '''
     im = Image.new("RGB", (1500, 450), (128, 128, 128))
@@ -140,7 +140,7 @@ def generate_prediction_image(output_dir, model):
             continue
 
         img = Image.open(path).convert('RGB')
-        img = img.resize((80, 100))
+        img = img.resize((model_img_width, model_img_height))
 
         # 上位３位まで取得
         outputs_all = model.predict(np.asarray([np.asarray(img) / 255]))
@@ -182,7 +182,7 @@ def generate_prediction_image(output_dir, model):
             continue
 
         img = Image.open(path).convert('RGB')
-        img = img.resize((80, 100))
+        img = img.resize((model_img_width, model_img_height))
 
         # top-3 results
         outputs_all = model.predict(np.asarray([np.asarray(img) / 255]))
@@ -244,7 +244,8 @@ def main(args):
     # predict champions to clipped screenshots
     best_model_path, _ = get_best_and_final_model_path(args.model_root)
     model = load_model(best_model_path)
-
+    model_config = load_model_config(args.model_root)
+    
     for output_dir in glob.glob(args.output_root + '/*'):
         if not os.path.isdir(output_dir):
             print(output_dir)
@@ -254,7 +255,8 @@ def main(args):
         if (not args.overwrite) and os.path.exists(output_path):
             continue
 
-        generate_prediction_image(output_dir, model)
+        generate_prediction_image(output_dir, model, 
+                                  model_config.img_width, model_config.img_height)
 
 
 if __name__ == "__main__":
