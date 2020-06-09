@@ -6,7 +6,7 @@ from keras_preprocessing.image import ImageDataGenerator
 from keras_preprocessing.image.dataframe_iterator import DataFrameIterator
 import pandas as pd
 import numpy as np
-from util import dotDict
+from util import dotDict, GettableDefaultDictWrapper
 
 # # Not used for now.
 # class MultiCategoryIterator(object):
@@ -52,7 +52,7 @@ def load_classes_from_definition(label_types):
     def _load_classes_from_definition(label_type):
         class_def = "classes/%s.txt" % label_type
         _id2class = [c.strip() for c in open(class_def)]
-        _class2id = defaultdict(int)
+        _class2id = GettableDefaultDictWrapper(defaultdict(lambda: 0))
         for i, c in enumerate(_id2class):
             _class2id[c] = i
         return _id2class, _class2id
@@ -73,6 +73,7 @@ class MultiOutputIterator(object):
         self.class2id = classes
         self.id2class = [tok for tok in classes]
         self.y_cols = y_cols
+        # self.f = open('aaa.log', 'w') # debug
 
     def __iter__(self):
         return self
@@ -86,11 +87,6 @@ class MultiOutputIterator(object):
         assert len(labels) == len(self.y_cols)
         label_indice = []
         for i in range(len(labels)):
-            # print(self.y_cols[i])
-            # print(self.class2id[self.y_cols[i]])
-            # print(labels[i])
-            print(set(labels[i]) - set(self.class2id[self.y_cols[i]].keys()))
-            
             indice = np.vectorize(self.class2id[self.y_cols[i]].get)(labels[i])
             label_indice.append(indice)
         return data, label_indice

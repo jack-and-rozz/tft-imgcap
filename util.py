@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from itertools import chain
 import yaml
+from collections import defaultdict
 
 class dotDict(dict):
   __getattr__ = dict.__getitem__
@@ -14,6 +15,30 @@ class dotDict(dict):
     if key in self:
       return self[key]
     raise AttributeError("\'%s\' is not in %s" % (str(key), str(self.keys())))
+
+
+# collections.defaultdict returns None when dict.get('unknown_key') although dict['unknown_key'] returns a correct initial value....
+class GettableDefaultDictWrapper(dict):
+    def __init__(self, dic):
+        assert isinstance(dic, defaultdict)
+        self.dic = dic
+    def __len__(self):
+        return len(self.dic)
+
+    def __getattr__(self, name):
+        return getattr(dic, name)
+
+    def __setitem__(self, key, value):
+        self.dic[key] = value
+
+    def __delitem__(self, key):
+        del self.dic[key]
+
+    def __getitem__(self, key):
+        return self.dic[key]
+
+    def get(self, key):
+        return self.dic[key]
 
 
 def flatten(l):
