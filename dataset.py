@@ -89,7 +89,8 @@ class MultiOutputIterator(object):
             # print(self.y_cols[i])
             # print(self.class2id[self.y_cols[i]])
             # print(labels[i])
-            # print(set(labels[i]) - set(self.class2id[self.y_cols[i]].keys()))
+            print(set(labels[i]) - set(self.class2id[self.y_cols[i]].keys()))
+            
             indice = np.vectorize(self.class2id[self.y_cols[i]].get)(labels[i])
             label_indice.append(indice)
         return data, label_indice

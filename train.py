@@ -73,7 +73,6 @@ def main(args):
     fix_random_seed()
 
     id2class, class2id = load_classes_from_definition(args.label_types)
-
     train_df = read_df(args.data_dir + '/' + args.train_csv, args.label_types, 
                        class2id)
     dev_df = read_df(args.data_dir + '/' + args.dev_csv, args.label_types, 
