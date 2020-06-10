@@ -29,41 +29,74 @@ def load_classes_from_saved_model(model_root):
 def evaluation(model, output_dir, test_data, id2class, n_test=None):
     os.makedirs(output_dir, exist_ok=True)
 
-    title_template = "Hyp: %s\nRef: %s"
-    all_hypotheses = []
-    all_references = []
-
+    # all_hypotheses = {k:[] for k in id2class}
+    # all_references = {k:[] for k in id2class}
+    all_hypotheses = np.empty((0, len(id2class)))
+    all_references = np.empty((0, len(id2class)))
     pbar = tqdm(total=n_test)
+
+    def make_title(hypothesis, reference):
+        title_template = "Hyp: %s\nRef: %s"
+        hyp_str = ', '.join(hypothesis)
+        ref_str = ', '.join(reference)
+        return title_template % (hyp_str, ref_str)
+
+
+
     for pic_idx, (images, labels) in enumerate(test_data):
         # outputs = sess.run(model(images)) # [batch_size, num_classes]
         outputs = model.predict(images)
         # labels = np.argmax(labels, axis=1) # when reading in 'categorical' mode.
 
         # show top-1
-        outputs = np.argmax(outputs, axis=1)
-        hypotheses = [id2class[idx] for idx in outputs]
+        top1_outputs = [np.argmax(o, axis=1) for o in outputs] # [num_labels, num_examples]
 
-        # show top-3
-        # outputs = (-outputs).argsort(axis=-1)[:, :3]
-        # hypotheses = [', '.join([id2class[idx] for idx in idx_list]) for idx_list in outputs]
-        references = [id2class[idx] for idx in labels.astype(np.int32)]
+        hypotheses = [np.array(dic)[o] for o, dic in zip(top1_outputs, id2class.values())] # hypotheses[label_type][example_idx] = val
+        references = [np.array(dic)[l.astype(np.int32)] for l, dic in zip(labels, id2class.values())]
 
-        all_hypotheses += hypotheses
-        all_references += references
+        hypotheses = np.concatenate(np.expand_dims(hypotheses, 0), axis=0).T
+        references = np.concatenate(np.expand_dims(references, 0), axis=0).T
 
-        titles = [title_template % (hypotheses[i], references[i]) for i in range(len(outputs))]
+        #np.append(all_hypotheses, hypotheses, axis=0)
+        #np.append(all_references, references, axis=0)
+
+        all_hypotheses = np.vstack([all_hypotheses, hypotheses])
+        all_references = np.vstack([all_references, references])
+
+        # for i, k in enumerate(id2class.keys()):
+        #     all_hypotheses[k].append(hypotheses)
+        #     all_references[k].append(references)
+
+        # print(hypotheses.T)
+        # print(references.T)
+
+        # titles = [title_template % (hypotheses[i], references[i]) for i in range(len(outputs))]
+        titles = [make_title(h, r) for h, r in zip(hypotheses, 
+                                                   references)]
         images = [images[i] for i in range(images.shape[0])]
         evaluation_path = output_dir + '/test.%02d.png' % pic_idx
-        plotImages(images, titles, save_as=evaluation_path)
+
+        plotImages(images, labels=titles, figsize=(9.6*1.2, 7.2), 
+                   save_as=evaluation_path)
         pbar.update(test_batch_size)
-        if test_batch_size * (pic_idx + 1) >= n_test:
+
+        # One-shot iterator is not available?
+        if test_batch_size * (pic_idx + 1) >= n_test: 
             break
 
-    is_correct = [1 if hyp == ref else 0 for hyp, ref in zip(all_hypotheses[:n_test], all_references[:n_test])]
-    accuracy = float(sum(is_correct)) / len(is_correct)
+
+    def calc_accuracy(_hypotheses, _references):
+        is_correct = [1 if hyp == ref else 0 for hyp, ref in zip(_hypotheses, 
+                                                                 _references)]
+        accuracy = float(sum(is_correct)) / len(is_correct)
+        return accuracy
+
 
     print()
-    print('Accuracy: %.03f' % accuracy)
+    for i, k in enumerate(id2class.keys()):
+        acc = calc_accuracy(all_hypotheses[:, i], all_references[:, i])
+        print('Accuracy (%s): %.03f' % (k, acc))
+
     print(file=sys.stderr)
     print("Evaluation results are saved to '%s'." % (output_dir), file=sys.stderr)
 
@@ -81,7 +114,7 @@ def confusion_matrix(refs, hyps, class2id):
 def plot_eval_stat(refs, hyps, class2id, id2class, output_dir):
 
     with sns.axes_style("darkgrid"):
-        plt.subplots(figsize=(10,8), tight_layout=True)
+        plt.subplots(figsize=(9.6, 7.2), tight_layout=True)
         cm = confusion_matrix(refs, hyps, class2id)
         annot = False
         sns.heatmap(cm, xticklabels=id2class, yticklabels=id2class, 
@@ -130,8 +163,8 @@ def main(args):
     model = load_model(best_model_path)
     output_dir = args.model_root + '/evaluations' if not args.output_dir else args.output_dir
     refs, hyps = evaluation(model, output_dir, test_data, 
-                            id2class[LABEL_TYPE], n_test)
-    plot_eval_stat(refs, hyps, class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
+                            id2class, n_test)
+    plot_eval_stat(refs[:, 0], hyps[:, 0], class2id[LABEL_TYPE], id2class[LABEL_TYPE], output_dir)
     
 if __name__ == "__main__":
     parser = get_test_parser()

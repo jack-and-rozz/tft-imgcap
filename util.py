@@ -46,7 +46,8 @@ def flatten(l):
 
 
 # (todo): 無限ループするカスタムジェネレータを作ってlabelimgでアノテーションしたマルチラベルに対応
-def plotImages(images, labels=None, save_as=None, x=None, y=None):
+def plotImages(images, labels=None, save_as=None, x=None, y=None, 
+               figsize=(6.4, 4,8)):
     if type(images) == np.ndarray:
         images = [images[i] for i in range(images.shape[0])]
     if type(images) not in [list, tuple]:
@@ -62,7 +63,11 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None):
             n = int(n)
         x = n
         y = n
-    fig, axes = plt.subplots(y, x)
+
+    # fig = plt.figure(figsize)
+
+    # axes = fig.axes
+    fig, axes = plt.subplots(y, x, figsize=figsize)
 
     if len(images) == 1:
         ax = axes
