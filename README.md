@@ -9,14 +9,16 @@ ln -sf {dataset_path} datasets # Images and annotations are managed in Dropbox.
 
 ## How to use
 ```
-# Training
-python train.py checkpoints/tmp --label-types=champion
+trained_model_dir=checkpoints/tmp
 
-# Evaluation with annotated test set
-python test.py checkpoints/tmp --output-dir=evals
+# Training
+python train.py ${trained_model_dir} --label-types=champion
+
+# Evaluation with annotated clips for testing
+python test.py ${trained_model_dir} --output-dir=evals
 
 # End-to-end testing with a raw screen shot
-python clip_rawpics.py checkpoints/tmp
+python clip_rawpics.py ${trained_model_dir}
 ```
 
 
