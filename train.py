@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from tensorflow.keras import datasets, layers, models
 from tensorflow.keras.models import Sequential, Model, load_model
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
+# from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Input
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras.utils import to_categorical
@@ -73,7 +73,6 @@ def main(args):
     fix_random_seed()
 
     id2class, class2id = load_classes_from_definition(args.label_types)
-
     train_df = read_df(args.data_dir + '/' + args.train_csv, args.label_types, 
                        class2id)
     dev_df = read_df(args.data_dir + '/' + args.dev_csv, args.label_types, 
@@ -91,7 +90,8 @@ def main(args):
                            shuffle=True)
     # for img, lb in train_data:
     #     print(img.shape)
-    #     print(lb.shape)
+    #     print(lb)
+    #     print(type(train_data))
     #     exit(1)
 
     dev_data = read_data(args.data_dir, dev_df, class2id, args.batch_size, 
@@ -114,10 +114,15 @@ def main(args):
         model = load_model(final_model_path)
         initial_epoch, _ = parse_epoch_and_loss_from_path(final_model_path)
     else:
+
         model = define_model(input_shape, output_sizes, 
                              cnn_dims=args.cnn_dims,
                              L2reg_factor=args.L2reg_factor,
-                             dropout_rate=args.dropout_rate)
+                             dropout_rate=args.dropout_rate,
+                             activation=args.activation_func,
+                             batch_normalization=not args.disable_batch_normalization)
+        with open(args.model_root + '/archtecture.txt', 'w') as f:
+            print(model.summary(), file=f)
         model.summary()
         initial_epoch = 0
     sys.stderr.write('Start training from Epoch %d.\n' % initial_epoch)
@@ -125,7 +130,7 @@ def main(args):
     # Multi-output にするなら自分でスケジューリングしてkeras.train_on_batchを使ったほうがいい？
     # https://www.pyimagesearch.com/2018/12/24/how-to-use-keras-fit-and-fit_generator-a-hands-on-tutorial/
     modelCheckpoint = ModelCheckpoint(
-        filepath = args.model_root + '/checkpoints/ckpt.{epoch:02d}-{val_loss:.2f}.hdf5',
+        filepath = args.model_root + '/checkpoints/ckpt.{epoch:03d}-{val_loss:.4f}.hdf5',
         monitor='val_loss',
         verbose=1,
         save_best_only=False,
@@ -135,9 +140,13 @@ def main(args):
 
     opt = Adam(lr=args.init_lr)
     loss = {label_type: 'sparse_categorical_crossentropy' for label_type in args.label_types}
-    loss_weights = {label_type: 1.0 for label_type in args.label_types}
+    loss_weights = {label_type: 1.0 - 0.1 * (len(args.label_types)-1) if label_type == 'champion' else 0.2 for label_type in args.label_types}
     metrics = {label_type: 'accuracy' for label_type in args.label_types}
 
+    # print(loss)
+    # print(loss_weights)
+    # print(model.outputs)
+    # exit(1)
     model.compile(optimizer=opt, loss=loss, loss_weights=loss_weights,
                   metrics=metrics)
     # model.summary()

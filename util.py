@@ -3,7 +3,8 @@ import os, sys, glob, math, subprocess, re
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import chain
-
+import yaml
+from collections import defaultdict
 
 class dotDict(dict):
   __getattr__ = dict.__getitem__
@@ -16,12 +17,37 @@ class dotDict(dict):
     raise AttributeError("\'%s\' is not in %s" % (str(key), str(self.keys())))
 
 
+# collections.defaultdict returns None when dict.get('unknown_key') although dict['unknown_key'] returns a correct initial value....
+class GettableDefaultDictWrapper(dict):
+    def __init__(self, dic):
+        assert isinstance(dic, defaultdict)
+        self.dic = dic
+    def __len__(self):
+        return len(self.dic)
+
+    def __getattr__(self, name):
+        return getattr(dic, name)
+
+    def __setitem__(self, key, value):
+        self.dic[key] = value
+
+    def __delitem__(self, key):
+        del self.dic[key]
+
+    def __getitem__(self, key):
+        return self.dic[key]
+
+    def get(self, key):
+        return self.dic[key]
+
+
 def flatten(l):
   return list(chain.from_iterable(l))
 
 
 # (todo): 無限ループするカスタムジェネレータを作ってlabelimgでアノテーションしたマルチラベルに対応
-def plotImages(images, labels=None, save_as=None, x=None, y=None):
+def plotImages(images, labels=None, save_as=None, x=None, y=None, 
+               figsize=(6.4, 4,8)):
     if type(images) == np.ndarray:
         images = [images[i] for i in range(images.shape[0])]
     if type(images) not in [list, tuple]:
@@ -37,7 +63,11 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None):
             n = int(n)
         x = n
         y = n
-    fig, axes = plt.subplots(y, x)
+
+    # fig = plt.figure(figsize)
+
+    # axes = fig.axes
+    fig, axes = plt.subplots(y, x, figsize=figsize)
 
     if len(images) == 1:
         ax = axes
@@ -45,7 +75,6 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None):
         if labels is not None:
             ax.set_title(labels[0])
         ax.axis('off')
-
     else:
         axes = axes.flatten()
         for i in range(y*x):
@@ -87,3 +116,7 @@ def get_best_and_final_model_path(model_root):
     final_model_path = val_losses[0][-1]
     return best_model_path, final_model_path
 
+
+def load_model_config(model_root, config_filename='config.yaml'):
+    saved_args = yaml.load(open(model_root + '/' + config_filename))
+    return dotDict(saved_args)

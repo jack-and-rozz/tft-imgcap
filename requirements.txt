@@ -8,3 +8,5 @@ matplotlib
 Pillow
 scipy
 keras
+seaborn
+sklearn
