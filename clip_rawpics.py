@@ -260,11 +260,11 @@ def main(args):
 
 
 if __name__ == "__main__":
-      parser = argparse.ArgumentParser()
-      parser.add_argument('model_root')
-      parser.add_argument('--icon-dir', default='icons/set3-mid/')
-      parser.add_argument('--input-root', default='datasets/tests/rawpics')
-      parser.add_argument('--output-root', default='datasets/tests/clipped_raw')
-      parser.add_argument('--overwrite', default=False, action='store_true')
-      args = parser.parse_args()
-      main(args)
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('model_root')
+    parser.add_argument('--icon-dir', default='icons/set3-mid/', help=' ')
+    parser.add_argument('--input-root', default='datasets/tests/rawpics', help=' ')
+    parser.add_argument('--output-root', default='datasets/tests/clipped_raw', help=' ')
+    parser.add_argument('--overwrite', default=False, action='store_true', help='If True, overwrite prediction result files even if the same ones exist.')
+    args = parser.parse_args()
+    main(args)
