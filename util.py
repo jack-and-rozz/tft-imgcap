@@ -75,7 +75,6 @@ def plotImages(images, labels=None, save_as=None, x=None, y=None,
         if labels is not None:
             ax.set_title(labels[0])
         ax.axis('off')
-
     else:
         axes = axes.flatten()
         for i in range(y*x):
