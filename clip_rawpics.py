@@ -161,7 +161,7 @@ def generate_prediction_image(output_dir, model, model_img_width, model_img_heig
         outputs = {k:v[0] for k, v in outputs.items()}
         outputs = {k:id2class[k][v] for k, v in outputs.items()}
         prediction_probs = {k:v[0] for k, v in prediction_probs.items()}
-        champion_prob = "%.2f" % prediction_probs['champion']
+        champion_prob = "%.2f" % prediction_probs['champion'][0]
         hypotheses = outputs['champion']
 
         # hypotheses = []
@@ -221,7 +221,7 @@ def generate_prediction_image(output_dir, model, model_img_width, model_img_heig
         outputs = {k:v[0] for k, v in outputs.items()}
         outputs = {k:id2class[k][v] for k, v in outputs.items()}
         prediction_probs = {k:v[0] for k, v in prediction_probs.items()}
-        champion_prob = "%.2f" % prediction_probs['champion']
+        champion_prob = "%.2f" % prediction_probs['champion'][0]
         hypotheses = outputs['champion']
 
         # hypotheses = []
