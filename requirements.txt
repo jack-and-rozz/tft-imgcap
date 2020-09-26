@@ -2,7 +2,7 @@ tqdm
 pandas
 pyyaml
 numpy==1.16.4
-tensorflow==1.13.1
+tensorflow==1.15.4
 pyhocon
 matplotlib
 Pillow
